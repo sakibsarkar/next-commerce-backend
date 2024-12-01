@@ -12,6 +12,34 @@ router.post(
   productController.createProduct
 );
 
+router.patch(
+  "/update/:productId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  validSchema(productValidationSchema.update),
+  productController.updateProduct
+);
+
+router.delete(
+  "/remove/color/:colorId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  productController.removeColor
+);
+router.delete(
+  "/remove/size/:sizeId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  productController.removeSize
+);
+
+router.delete(
+  "/delete/:productId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  productController.deleteProductById
+);
+
 router.get("/get", productController.getProducts);
 router.get("/get/:id", productController.getProductDetailsById);
 

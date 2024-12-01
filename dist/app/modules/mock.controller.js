@@ -12,32 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const nodemailer_1 = __importDefault(require("nodemailer"));
-const sendMessage = (_a) => __awaiter(void 0, [_a], void 0, function* ({ html, receiverMail, subject }) {
-    const transporter = nodemailer_1.default.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.MAIL,
-            pass: process.env.MAILPASS,
-        },
-        tls: {
-            rejectUnauthorized: true,
-        },
+const catchAsyncError_1 = __importDefault(require("../../utils/catchAsyncError"));
+const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
+const stripe_1 = __importDefault(require("../config/stripe"));
+const express_1 = require("express");
+const paymentIntent = (0, catchAsyncError_1.default)((_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const paymentMethod = yield stripe_1.default.paymentIntents.create({
+        amount: 1099,
+        currency: "usd",
     });
-    const mailOptions = {
-        from: "legendxpro123455@gmail.com",
-        to: receiverMail,
-        subject: subject,
-        html: html,
-    };
-    try {
-        yield transporter.sendMail(mailOptions);
-    }
-    catch (error) {
-        console.error("Error sending email:", error);
-        throw error;
-    }
-});
-exports.default = sendMessage;
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        data: paymentMethod.id,
+        message: "Payment intent created successfully",
+    });
+}));
+const router = (0, express_1.Router)();
+router.get("/payment-intent", paymentIntent);
+const mockRoute = router;
+exports.default = mockRoute;

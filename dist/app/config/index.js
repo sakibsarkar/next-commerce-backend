@@ -5,13 +5,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const { REFRESH_TOKEN_SECRET, ACCESS_TOKEN_SECRET, PASSWORD_RECOVERY_SECRET, JWT_REFRESH_SECRET, JWT_ACCESS_SECRET, NODE_ENV, SALT_ROUND, FRONTEND_URL, STRIPE_SK, } = process.env;
 const Config = {
-    dbUser: process.env.MONGO_NAME,
-    dbPass: process.env.MONGO_PASS,
-    dbName: process.env.MONGO_DB,
-    bcrypt_salt_rounds: process.env.SALT_ROUND,
-    nodeEnv: process.env.NODE_ENV,
-    jwt_access_secret: process.env.JWT_ACCESS_SECRET,
-    jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
+    bcrypt_salt_rounds: SALT_ROUND,
+    NODE_ENV: NODE_ENV,
+    jwt_access_secret: JWT_ACCESS_SECRET,
+    jwt_refresh_secret: JWT_REFRESH_SECRET,
+    FRONTEND_URL,
+    REFRESH_TOKEN: {
+        SECRET: REFRESH_TOKEN_SECRET,
+        EXPIRY: "7d",
+    },
+    ACCESS_TOKEN: {
+        SECRET: ACCESS_TOKEN_SECRET,
+        EXPIRY: "1h",
+    },
+    RECOVERY_TOKEN: {
+        SECRET: PASSWORD_RECOVERY_SECRET,
+        EXPIRY: "5m",
+    },
+    STRIPE_SECRET_KEY: STRIPE_SK,
 };
 exports.default = Config;

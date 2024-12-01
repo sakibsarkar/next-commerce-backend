@@ -4,32 +4,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const author_route_1 = __importDefault(require("../modules/author/author.route"));
-const book_route_1 = __importDefault(require("../modules/book/book.route"));
-const borro_route_1 = __importDefault(require("../modules/borrow/borro.route"));
-const member_route_1 = __importDefault(require("../modules/member/member.route"));
-const return_route_1 = __importDefault(require("../modules/return/return.route"));
+const auth_route_1 = __importDefault(require("../modules/auth/auth.route"));
+const mock_controller_1 = __importDefault(require("../modules/mock.controller"));
+const order_route_1 = __importDefault(require("../modules/order/order.route"));
+const product_route_1 = __importDefault(require("../modules/product/product.route"));
+const shop_route_1 = __importDefault(require("../modules/shop/shop.route"));
 const router = (0, express_1.Router)();
 const moduleRoute = [
     {
-        path: "/author",
-        route: author_route_1.default,
+        path: "/auth",
+        route: auth_route_1.default,
     },
     {
-        path: "/books",
-        route: book_route_1.default,
+        path: "/product",
+        route: product_route_1.default,
     },
     {
-        path: "/members",
-        route: member_route_1.default,
+        path: "/shop",
+        route: shop_route_1.default,
     },
     {
-        path: "/borrow",
-        route: borro_route_1.default,
+        path: "/order",
+        route: order_route_1.default,
     },
     {
-        path: "/return",
-        route: return_route_1.default,
+        path: "/mock",
+        route: mock_controller_1.default,
     },
 ];
 moduleRoute.forEach((route) => router.use(route.path, route.route));

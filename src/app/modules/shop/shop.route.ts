@@ -15,6 +15,14 @@ router.post(
   shopController.createShop
 );
 
+router.patch(
+  "/update",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  validSchema(shopValidationSchema.update),
+  shopController.updateShop
+);
+
 router.get(
   "/myshop",
   authMiddleWere.isAuthenticateUser,

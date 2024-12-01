@@ -16,6 +16,62 @@ const createProduct = catchAsyncError(async (req, res) => {
   });
 });
 
+const updateProduct = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const body = req.body || {};
+  const { productId } = req.params;
+
+  const product = await productService.updateProduct(body, productId, user.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Product updated successfully",
+    data: product,
+  });
+});
+
+const removeSize = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const sizeId = req.params.sizeId;
+
+  const product = await productService.removeSize(sizeId, user.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Size deleted successfully",
+    data: product,
+  });
+});
+
+const removeColor = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const colorId = req.params.colorId;
+
+  const product = await productService.removeColor(colorId, user.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Color deleted successfully",
+    data: product,
+  });
+});
+
+const deleteProductById = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { productId } = req.params;
+  const product = await productService.deleteProductById(productId, user.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Product deleted successfully",
+    data: product,
+  });
+});
+
 const getProducts = catchAsyncError(async (req, res) => {
   const query = req.query;
   const { metaQuery, products, totalCount } =
@@ -51,6 +107,9 @@ const getProductDetailsById = catchAsyncError(async (req, res) => {
 
 export const productController = {
   createProduct,
+  updateProduct,
   getProducts,
   getProductDetailsById,
+  removeColor,
+  removeSize,deleteProductById
 };

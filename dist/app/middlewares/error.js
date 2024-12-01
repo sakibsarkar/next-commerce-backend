@@ -11,6 +11,7 @@ const globalErrorHandler = (error, req, res, next) => {
     let message = (error === null || error === void 0 ? void 0 : error.message) || "Something went wrong!";
     let statusCode = (error === null || error === void 0 ? void 0 : error.statusCode) || 500;
     let errorMessages = [];
+    console.log(error);
     if (error instanceof AppError_1.default) {
         statusCode = (error === null || error === void 0 ? void 0 : error.statusCode) || 400;
         message = error.message;

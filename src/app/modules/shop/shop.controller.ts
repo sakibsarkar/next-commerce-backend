@@ -14,6 +14,18 @@ const createShop = catchAsyncError(async (req, res) => {
   });
 });
 
+const updateShop = catchAsyncError(async (req, res) => {
+  const { body } = req;
+  const user = req.user!;
+  const shop = await shopService.updateShop(user.id, body);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Shop updated successfully",
+    data: shop,
+  });
+});
+
 const getShopByUser = catchAsyncError(async (req, res) => {
   const user = req.user!;
   const shop = await shopService.getShopByUser(user.id);
@@ -27,6 +39,7 @@ const getShopByUser = catchAsyncError(async (req, res) => {
 const shopController = {
   createShop,
   getShopByUser,
+  updateShop,
 };
 
 export default shopController;

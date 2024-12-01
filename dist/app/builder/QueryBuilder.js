@@ -1,66 +1,65 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/no-explicit-any */
 class QueryBuilder {
-    constructor(modelQuery, query) {
-        this.modelQuery = modelQuery;
+    constructor(query) {
         this.query = query;
-        this.totalCount = 0;
+        this.prismaQuery = {};
     }
     search(searchableFields) {
-        var _a;
-        const searchTerm = (_a = this === null || this === void 0 ? void 0 : this.query) === null || _a === void 0 ? void 0 : _a.searchTerm;
+        const searchTerm = this.query.searchTerm;
         if (searchTerm) {
-            this.modelQuery = this.modelQuery.find({
-                $or: searchableFields.map((field) => ({
-                    [field]: { $regex: searchTerm, $options: "i" },
-                })),
-            });
+            this.prismaQuery = Object.assign(Object.assign({}, this.prismaQuery), { where: {
+                    OR: searchableFields.map((field) => ({
+                        [field]: { contains: searchTerm, mode: "insensitive" }, // Case-insensitive search
+                    })),
+                } });
         }
         return this;
     }
     filter() {
         const queryObj = Object.assign({}, this.query);
-        // Filtering
         const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
         excludeFields.forEach((el) => delete queryObj[el]);
-        this.modelQuery = this.modelQuery.find(queryObj);
+        this.prismaQuery = Object.assign(Object.assign({}, this.prismaQuery), { where: Object.assign(Object.assign({}, this.prismaQuery.where), queryObj) });
         return this;
     }
     sort() {
-        var _a, _b, _c;
-        const sort = ((_c = (_b = (_a = this === null || this === void 0 ? void 0 : this.query) === null || _a === void 0 ? void 0 : _a.sort) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.join(" ")) || "-createdAt";
-        this.modelQuery = this.modelQuery.sort(sort);
+        var _a, _b;
+        const sort = ((_b = (_a = this.query.sort) === null || _a === void 0 ? void 0 : _a.split(",")) === null || _b === void 0 ? void 0 : _b.join(" ")) || "-createdAt";
+        this.prismaQuery = Object.assign(Object.assign({}, this.prismaQuery), { orderBy: sort.split(" ").map((field) => {
+                const direction = field.startsWith("-") ? "desc" : "asc";
+                return { [field.replace("-", "")]: direction };
+            }) });
         return this;
     }
     paginate() {
-        var _a, _b;
-        const page = Number((_a = this === null || this === void 0 ? void 0 : this.query) === null || _a === void 0 ? void 0 : _a.page) || 1;
-        const limit = Number((_b = this === null || this === void 0 ? void 0 : this.query) === null || _b === void 0 ? void 0 : _b.limit) || 10;
+        const page = Number(this.query.page) || 1;
+        const limit = Number(this.query.limit) || 10;
         const skip = (page - 1) * limit;
-        this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+        this.prismaQuery = Object.assign(Object.assign({}, this.prismaQuery), { skip, take: limit });
         return this;
     }
     fields() {
-        var _a, _b, _c;
-        const fields = ((_c = (_b = (_a = this === null || this === void 0 ? void 0 : this.query) === null || _a === void 0 ? void 0 : _a.fields) === null || _b === void 0 ? void 0 : _b.split(",")) === null || _c === void 0 ? void 0 : _c.join(" ")) || "-__v";
-        this.modelQuery = this.modelQuery.select(fields);
+        var _a;
+        const fields = ((_a = this.query.fields) === null || _a === void 0 ? void 0 : _a.split(",")) || [];
+        if (fields.length > 0) {
+            this.prismaQuery = Object.assign(Object.assign({}, this.prismaQuery), { select: fields.reduce((acc, field) => (Object.assign(Object.assign({}, acc), { [field]: true })), {}) });
+        }
         return this;
     }
-    count() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const countQuery = this.modelQuery.model.countDocuments(this.modelQuery.getFilter());
-            this.totalCount = yield countQuery.exec();
-            return this;
-        });
+    getPrismaQuery(whereQuery) {
+        if (!whereQuery)
+            return this.prismaQuery;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return Object.assign(Object.assign({}, this.prismaQuery), { where: Object.assign(Object.assign({}, this.prismaQuery.where), whereQuery) });
+    }
+    getMetaQuery() {
+        return {
+            currentPage: Number(this.query.page) || 1,
+            limit: Number(this.query.limit) || 10,
+        };
     }
 }
 exports.default = QueryBuilder;

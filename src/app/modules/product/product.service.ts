@@ -3,7 +3,8 @@ import QueryBuilder from "../../builder/QueryBuilder";
 import prisma from "../../config/prisma";
 import AppError from "../../errors/AppError";
 
-const createProduct = async (body: any, user: any) => {
+const createProduct = async (payload: any, user: any) => {
+  // Find the shop associated with the user
   const shop = await prisma.shop.findUnique({
     where: {
       ownerId: user?.id,
@@ -14,11 +15,20 @@ const createProduct = async (body: any, user: any) => {
     throw new AppError(404, "Shop not found");
   }
 
+  // Create the product
   const product = await prisma.product.create({
     data: {
-      ...body,
+      name: payload.name,
+      price: payload.price,
+      stock: payload.stock,
+      discount: payload.discount,
+      tag: payload.tag,
+      description: payload.description,
+      images: payload.images,
+      categoryId: payload.categoryId,
+      shopId: shop.id,
       colors: {
-        create: body.colors.map((color: any) => ({
+        create: payload.colors.map((color: any) => ({
           color: color.color,
           sizes: {
             create: color.sizes.map((size: any) => ({
@@ -34,6 +44,144 @@ const createProduct = async (body: any, user: any) => {
   return product;
 };
 
+const updateProduct = async (
+  payload: any,
+  productId: string,
+  userId: string
+) => {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: {
+      colors: true,
+      shopInfo: true,
+    },
+  });
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  if (product.shopInfo.ownerId !== userId) {
+    throw new Error("You are not authorized to update this product");
+  }
+
+  // Construct the data to update
+  const updateData: any = {
+    name: payload.name,
+    price: payload.price,
+    stock: payload.stock,
+    discount: payload.discount,
+    tag: payload.tag,
+    description: payload.description,
+    images: payload.images,
+    categoryId: payload.categoryId,
+    isSale: payload.isSale,
+    colors: {
+      upsert: payload.colors.map((color: any) => ({
+        where: { id: color.id },
+        update: {
+          color: color.color,
+          sizes: {
+            upsert: color.sizes.map((size: any) => ({
+              where: { id: size.id },
+              update: { quantity: size.quantity },
+              create: {
+                size: size.size,
+                quantity: size.quantity,
+              },
+            })),
+          },
+        },
+        create: {
+          color: color.color,
+          sizes: {
+            create: color.sizes.map((size: any) => ({
+              size: size.size,
+              quantity: size.quantity,
+            })),
+          },
+        },
+      })),
+    },
+  };
+
+  // Update the product in the database
+  const updatedProduct = await prisma.product.update({
+    where: { id: productId },
+    data: updateData,
+  });
+
+  return updatedProduct;
+};
+const removeColor = async (colorId: string, userId: string) => {
+  const color = await prisma.color.findUnique({
+    where: { id: colorId },
+    include: { product: { include: { shopInfo: true } } },
+  });
+
+  if (!color) {
+    throw new Error("Color not found");
+  }
+
+  // Check authorization
+  if (color.product.shopInfo.ownerId !== userId) {
+    throw new Error("You are not authorized to remove this color");
+  }
+
+  // Delete the color (and cascade delete associated sizes)
+  await prisma.color.delete({
+    where: { id: colorId },
+  });
+
+  return { message: "Color deleted successfully" };
+};
+
+const removeSize = async (sizeId: string, userId: string) => {
+  const size = await prisma.size.findUnique({
+    where: { id: sizeId },
+    include: {
+      color: { include: { product: { include: { shopInfo: true } } } },
+    },
+  });
+
+  if (!size) {
+    throw new Error("Size not found");
+  }
+
+  // Check authorization
+  if (size.color.product.shopInfo.ownerId !== userId) {
+    throw new Error("You are not authorized to remove this size");
+  }
+
+  // Delete the size
+  await prisma.size.delete({
+    where: { id: sizeId },
+  });
+
+  return { message: "Size deleted successfully" };
+};
+
+const deleteProductById = async (productId: string, userId: string) => {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { shopInfo: true },
+  });
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  if (product.shopInfo.ownerId !== userId) {
+    throw new Error("You are not authorized to delete this product");
+  }
+
+  await prisma.product.update({
+    where: { id: productId },
+    data: { isDeleted: true },
+  });
+  return null;
+};
+
 const getAllProducts = async (query: Record<string, any>) => {
   const maxPrice = query.maxPrice ? Number(query.maxPrice) : undefined;
   const minPrice = query.minPrice ? Number(query.minPrice) : undefined;
@@ -41,7 +189,9 @@ const getAllProducts = async (query: Record<string, any>) => {
   const explodedQueryParams = ["minPrice", "maxPrice"];
 
   explodedQueryParams.forEach((key) => delete query[key]);
-  let findQuery: Record<string, any> = {};
+  let findQuery: Record<string, any> = {
+    isDeleted: false,
+  };
 
   if (maxPrice) {
     findQuery = { ...findQuery, price: { lte: maxPrice } };
@@ -80,6 +230,7 @@ const getProductDetailsById = async (id: string) => {
   const product = await prisma.product.findUnique({
     where: {
       id,
+      isDeleted: false,
     },
     include: {
       colors: {
@@ -97,6 +248,10 @@ const productService = {
   createProduct,
   getAllProducts,
   getProductDetailsById,
+  updateProduct,
+  removeColor,
+  removeSize,
+  deleteProductById,
 };
 
 export default productService;

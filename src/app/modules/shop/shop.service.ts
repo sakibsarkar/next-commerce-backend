@@ -22,9 +22,27 @@ const createShop = async (payload: IShop, userId: string) => {
   return shop;
 };
 
+const updateShop = async (userId: string, payload: Partial<IShop>) => {
+  const shop = await prisma.shop.findUnique({
+    where: {
+      ownerId: userId,
+    },
+  });
 
-// const updateShop = async
+  if (!shop) {
+    throw new AppError(404, "Shop not found");
+  }
 
+  const updatedShop = await prisma.shop.update({
+    where: {
+      id: shop.id,
+    },
+    data: {
+      ...payload,
+    },
+  });
+  return updatedShop;
+};
 
 const getShopByUser = async (userId: string) => {
   const shop = await prisma.shop.findUnique({
@@ -38,5 +56,6 @@ const getShopByUser = async (userId: string) => {
 const shopService = {
   createShop,
   getShopByUser,
+  updateShop,
 };
 export default shopService;

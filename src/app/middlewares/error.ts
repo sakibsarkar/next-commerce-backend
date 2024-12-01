@@ -11,7 +11,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
   let message = error?.message || "Something went wrong!";
   let statusCode = error?.statusCode || 500;
   let errorMessages: IErrorSources = [];
-  // console.log(error);
+  console.log(error);
 
   if (error instanceof AppError) {
     statusCode = error?.statusCode || 400;
