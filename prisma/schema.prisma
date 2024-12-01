@@ -36,6 +36,7 @@ model User {
   ShopFollowers       ShopFollowers[]
   Order               Order[]
   ShippingAdress      ShippingAdress[]
+  Review              Review[]
 }
 
 model ShippingAdress {
@@ -49,18 +50,19 @@ model ShippingAdress {
 }
 
 model Shop {
-  id            String          @id @default(uuid())
-  name          String
-  logo          String
-  description   String?
-  ownerId       String          @unique
-  ownerInfo     User            @relation(fields: [ownerId], references: [id])
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  Product       Product[]
-  ShopFollowers ShopFollowers[]
-  Order         Order[]
-  Payment       Payment[]
+  id             String           @id @default(uuid())
+  name           String
+  logo           String
+  description    String?
+  ownerId        String           @unique
+  ownerInfo      User             @relation(fields: [ownerId], references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  Product        Product[]
+  ShopFollowers  ShopFollowers[]
+  Order          Order[]
+  Payment        Payment[]
+  ReviewResponse ReviewResponse[]
 }
 
 model ShopFollowers {
@@ -101,6 +103,7 @@ model Product {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   Order        Order[]
+  Review       Review[]
 }
 
 model Color {
@@ -143,6 +146,34 @@ model Order {
   status    OrderStatus @default(PENDING)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  Review    Review[]
+}
+
+model Review {
+  id          String  @id @default(uuid())
+  images      String? @default("")
+  description String
+  userId      String
+  userInfo    User    @relation(fields: [userId], references: [id])
+  orderId     String
+  orderInfo   Order   @relation(fields: [orderId], references: [id])
+  productId      String
+  productInfo    Product         @relation(fields: [productId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  hasReply       Boolean         @default(false)
+  ReviewResponse ReviewResponse?
+
+  @@unique([userId, orderId])
+}
+
+model ReviewResponse {
+  id         String @id @default(uuid())
+  description String
+  reviewId   String @unique
+  reviewInfo Review @relation(fields: [reviewId], references: [id])
+  shopId     String
+  shopInfo   Shop   @relation(fields: [shopId], references: [id])
 }
 
 enum PaymentStatus {
