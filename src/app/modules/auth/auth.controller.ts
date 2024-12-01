@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 } from "uuid";
-import { catchAsyncError } from "../../../utils/catchAsyncError";
+import catchAsyncError from "../../../utils/catchAsyncError";
+import sendMessage from "../../../utils/sendMessage";
 import sendResponse from "../../../utils/sendResponse";
 import Config from "../../config";
 import prisma from "../../config/prisma";
 import AppError from "../../errors/AppError";
 import authUtils from "./auth.utils";
-import sendMessage from "../../../utils/sendMessage";
 const signUp = catchAsyncError(async (req, res) => {
   const { body } = req;
   const isExist = await prisma.user.findFirst({
@@ -21,62 +21,51 @@ const signUp = catchAsyncError(async (req, res) => {
       message: `User already exist with email ${body.email}`,
     });
   }
+  const password = await authUtils.hashPassword(body.password);
+  const result = await prisma.user.create({
+    data: {
+      ...body,
+      password,
+    },
+  });
 
-  await prisma.$transaction(async (tx) => {
-    const password = await authUtils.hashPassword(body.password);
-    const result = await tx.user.create({
-      data: {
-        ...body,
-        isVerified: false,
-        password,
-      },
+  const tokenPayload = {
+    id: result.id,
+    email: result.email,
+    role: result.role || "",
+  };
+
+  const accessToken = authUtils.generateAccessToken(tokenPayload);
+  const refreshToken = authUtils.generateRefreshToken(result.id);
+
+  res
+    .cookie("accessToken", accessToken, {
+      sameSite: Config.NODE_ENV === "production" ? "none" : "strict",
+      maxAge: 1000 * 60 * 60, // 1 hour
+      httpOnly: true,
+      secure: Config.NODE_ENV === "production",
+    })
+    .cookie("refreshToken", refreshToken, {
+      sameSite: Config.NODE_ENV === "production" ? "none" : "strict",
+      maxAge: 1000 * 24 * 60 * 60 * 30, // 30 days
+      httpOnly: true,
+      secure: Config.NODE_ENV === "production",
     });
-
-    const tokenPayload = {
-      id: result.id,
-      email: result.email,
-      role: result.role || "",
-    };
-
-    const accessToken = authUtils.generateAccessToken(tokenPayload);
-    const refreshToken = authUtils.generateRefreshToken(result.id);
-
-    // ---- 💀 🔥 sendgrid key please !!! ----
-
-    // await authUtils.sendVerificationEmail({
-    //   id: result.id,
-    //   email: result.email,
-    //   first_name: result.first_name,
-    // });
-    res
-      .cookie("accessToken", accessToken, {
-        sameSite: Config.NODE_ENV === "production" ? "none" : "strict",
-        maxAge: 1000 * 60 * 60, // 1 hour
-        httpOnly: true,
-        secure: Config.NODE_ENV === "production",
-      })
-      .cookie("refreshToken", refreshToken, {
-        sameSite: Config.NODE_ENV === "production" ? "none" : "strict",
-        maxAge: 1000 * 24 * 60 * 60 * 30, // 30 days
-        httpOnly: true,
-        secure: Config.NODE_ENV === "production",
-      });
-    sendResponse(res, {
-      data: {
-        result: {
-          ...result,
-          password: undefined,
-          passwordResetToken: undefined,
-          passwordResetExpiry: undefined,
-          otp: undefined,
-          otpExpiry: undefined,
-        },
-        accessToken,
+  sendResponse(res, {
+    data: {
+      result: {
+        ...result,
+        password: undefined,
+        passwordResetToken: undefined,
+        passwordResetExpiry: undefined,
+        otp: undefined,
+        otpExpiry: undefined,
       },
-      success: true,
-      statusCode: 201,
-      message: "User created successfully",
-    });
+      accessToken,
+    },
+    success: true,
+    statusCode: 201,
+    message: "User created successfully",
   });
 });
 

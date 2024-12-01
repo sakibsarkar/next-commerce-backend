@@ -26,7 +26,7 @@ model User {
   email               String    @unique
   password            String
   role                UserRole  @default(CUSTOMER)
-  image               String
+  image               String?
   passwordResetToken  String?
   passwordResetExpiry DateTime?
   createdAt           DateTime  @default(now())
@@ -44,7 +44,6 @@ model shop {
   ownerInfo   User      @relation(fields: [ownerId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  userId      String
   Product     Product[]
 }
 
@@ -53,7 +52,6 @@ model Category {
   label     String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  productId String
   Product   Product[]
 }
 
@@ -70,12 +68,11 @@ model Product {
   colors       Color[]
   categoryId   String
   categoryInfo Category @relation(fields: [categoryId], references: [id])
-  isSale       Boolean?
-  shop         String
+  isSale       Boolean? @default(false)
+  shopId       String
   shopInfo     shop     @relation(fields: [shopId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  shopId       String
 }
 
 model Color {

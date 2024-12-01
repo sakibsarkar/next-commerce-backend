@@ -6,7 +6,7 @@ const create = z
     last_name: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters long"),
-    role: z.enum(["CUSTOMER", "ADMIN"]).default("CUSTOMER"),
+    role: z.enum(["CUSTOMER", "ADMIN", "VENDOR"]).default("CUSTOMER"),
     image: z.string().url("Invalid image URL").optional(),
   })
   .strict();
