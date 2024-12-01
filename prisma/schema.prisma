@@ -32,26 +32,66 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   Payment             Payment[]
+  shop                shop?
+}
+
+model shop {
+  id          String    @id @default(uuid())
+  name        String
+  logo        String
+  description String?
+  ownerId     String    @unique
+  ownerInfo   User      @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  Product     Product[]
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  label     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Product   Product?
+  id        String    @id @default(uuid())
+  label     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  productId String
+  Product   Product[]
 }
 
 model Product {
   id           String   @id @default(uuid())
   name         String
-  thumbnails   String[]
+  avgRating    Float    @default(0)
   description  String
-  categoryId   String   @unique
+  images       String[]
+  price        Float
+  stock        Int      @default(0)
+  discount     Float    @default(0)
+  tag          String?  @default("")
+  colors       Color[]
+  categoryId   String
   categoryInfo Category @relation(fields: [categoryId], references: [id])
   isSale       Boolean?
+  shop         String
+  shopInfo     shop     @relation(fields: [shopId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  shopId       String
+}
+
+model Color {
+  id        String  @id @default(uuid())
+  color     String
+  sizes     Size[]
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Size {
+  id       String @id @default(uuid())
+  size     String
+  quantity Int    @default(0)
+  colorId  String
+  color    Color  @relation(fields: [colorId], references: [id], onDelete: Cascade)
 }
 
 enum PaymentStatus {
