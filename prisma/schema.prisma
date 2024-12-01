@@ -32,11 +32,12 @@ model User {
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
   Payment             Payment[]
-  shop                shop?
+  shop                Shop?
   ShopFollowers       ShopFollowers[]
+  Order               Order[]
 }
 
-model shop {
+model Shop {
   id            String          @id @default(uuid())
   name          String
   logo          String
@@ -47,12 +48,14 @@ model shop {
   updatedAt     DateTime        @updatedAt
   Product       Product[]
   ShopFollowers ShopFollowers[]
+  Order         Order[]
+  Payment       Payment[]
 }
 
 model ShopFollowers {
   id       String @id @default(uuid())
   shopId   String
-  shopInfo shop   @relation(fields: [shopId], references: [id])
+  shopInfo Shop   @relation(fields: [shopId], references: [id])
   userId   String
   userInfo User   @relation(fields: [userId], references: [id])
 
@@ -82,9 +85,10 @@ model Product {
   categoryInfo Category @relation(fields: [categoryId], references: [id])
   isSale       Boolean? @default(false)
   shopId       String
-  shopInfo     shop     @relation(fields: [shopId], references: [id])
+  shopInfo     Shop     @relation(fields: [shopId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  Order        Order[]
 }
 
 model Color {
@@ -103,16 +107,34 @@ model Size {
   color    Color  @relation(fields: [colorId], references: [id], onDelete: Cascade)
 }
 
+model Order {
+  id          String   @id @default(uuid())
+  productId   String
+  productInfo Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  size        String
+  color       String
+  userId      String
+  userInfo    User     @relation(fields: [userId], references: [id])
+  shopId      String
+  shopInfo    Shop     @relation(fields: [shopId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum PaymentStatus {
   SUCCESS
   FAILED
 }
 
 model Payment {
-  id        String        @id @default(uuid())
-  userId    String
-  userInfo  User          @relation(fields: [userId], references: [id])
-  status    PaymentStatus
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id            String        @id @default(uuid())
+  transactionId String        @unique
+  userId        String
+  userInfo      User          @relation(fields: [userId], references: [id])
+  status        PaymentStatus
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Shop          Shop?         @relation(fields: [shopId], references: [id])
+  shopId        String?
 }

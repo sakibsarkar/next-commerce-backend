@@ -10,6 +10,7 @@ const {
   NODE_ENV,
   SALT_ROUND,
   FRONTEND_URL,
+  STRIPE_SK,
 } = process.env;
 
 const Config = {
@@ -30,6 +31,7 @@ const Config = {
     SECRET: PASSWORD_RECOVERY_SECRET,
     EXPIRY: "5m",
   },
+  STRIPE_SECRET_KEY: STRIPE_SK,
 };
 
 export default Config;
