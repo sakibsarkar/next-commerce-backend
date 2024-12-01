@@ -42,6 +42,16 @@ router.delete(
 
 router.get("/get", productController.getProducts);
 router.get("/get/:id", productController.getProductDetailsById);
+router.get(
+  "/get-related/:categoryId",
+  productController.getRelatedProductsByCategoryId
+);
+router.get(
+  "/shop-follow",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("CUSTOMER"),
+  productController.getFollowedShopProducts
+);
 
 const productRoute = router;
 export default productRoute;

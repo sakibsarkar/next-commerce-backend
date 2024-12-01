@@ -105,11 +105,46 @@ const getProductDetailsById = catchAsyncError(async (req, res) => {
   });
 });
 
+const getRelatedProductsByCategoryId = catchAsyncError(async (req, res) => {
+  const { categoryId } = req.params;
+
+  const products = await productService.getRelatedProductsByCategoryId(
+    categoryId
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Products retrieved successfully",
+    data: products,
+  });
+});
+
+const getFollowedShopProducts = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { limit } = req.query;
+
+  const products = await productService.getFollowedShopProducts(
+    user.id,
+    Number(limit || 10)
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Products retrieved successfully",
+    data: products,
+  });
+});
+
 export const productController = {
   createProduct,
   updateProduct,
   getProducts,
   getProductDetailsById,
   removeColor,
-  removeSize,deleteProductById
+  removeSize,
+  deleteProductById,
+  getRelatedProductsByCategoryId,
+  getFollowedShopProducts,
 };

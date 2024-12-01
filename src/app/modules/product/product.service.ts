@@ -244,6 +244,73 @@ const getProductDetailsById = async (id: string) => {
   return product;
 };
 
+const getRelatedProductsByCategoryId = async (categoryId: string) => {
+  const limit = 10;
+  const relatedProducts = await prisma.product.findMany({
+    where: {
+      categoryId,
+      isDeleted: false,
+    },
+    include: {
+      colors: {
+        include: {
+          sizes: true,
+        },
+      },
+      shopInfo: true,
+    },
+  });
+
+  if (relatedProducts.length < limit) {
+    const randomProducts = await prisma.product.findMany({
+      take: limit - relatedProducts.length,
+      where: {
+        isDeleted: false,
+      },
+      include: {
+        colors: {
+          include: {
+            sizes: true,
+          },
+        },
+        shopInfo: true,
+      },
+    });
+    return [...relatedProducts, ...randomProducts];
+  }
+
+  return relatedProducts;
+};
+
+const getFollowedShopProducts = async (userId: string, limit: number) => {
+  const followedShops = await prisma.shopFollowers.findMany({
+    where: {
+      userId: userId,
+    },
+    select: {
+      shopId: true,
+    },
+  });
+
+  const shopIds = followedShops.map((shopFollower) => shopFollower.shopId);
+
+  if (shopIds.length === 0) {
+    return [];
+  }
+
+  const products = await prisma.product.findMany({
+    where: {
+      shopId: { in: shopIds },
+      isDeleted: false,
+    },
+    skip: 0,
+    take: limit,
+  });
+
+  const shuffledProducts = products.sort(() => 0.5 - Math.random());
+  return shuffledProducts;
+};
+
 const productService = {
   createProduct,
   getAllProducts,
@@ -252,6 +319,8 @@ const productService = {
   removeColor,
   removeSize,
   deleteProductById,
+  getRelatedProductsByCategoryId,
+  getFollowedShopProducts,
 };
 
 export default productService;
