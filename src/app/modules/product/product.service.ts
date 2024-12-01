@@ -52,6 +52,8 @@ const getAllProducts = async (query: Record<string, any>) => {
   }
   const queryBuilder = new QueryBuilder(query)
     .paginate()
+    .filter()
+    .sort()
     .search(["name", "description"]);
 
   const queryResult = queryBuilder.getPrismaQuery(findQuery);
@@ -61,6 +63,11 @@ const getAllProducts = async (query: Record<string, any>) => {
     ...queryResult,
     include: {
       shopInfo: true,
+      colors: {
+        include: {
+          sizes: true,
+        },
+      },
     },
   });
   const totalCount = await prisma.product.count({

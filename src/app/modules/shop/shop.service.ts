@@ -22,6 +22,10 @@ const createShop = async (payload: IShop, userId: string) => {
   return shop;
 };
 
+
+// const updateShop = async
+
+
 const getShopByUser = async (userId: string) => {
   const shop = await prisma.shop.findUnique({
     where: {
