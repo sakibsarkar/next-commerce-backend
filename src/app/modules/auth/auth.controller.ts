@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 } from "uuid";
-import { catchAsyncError } from "../../utils/catchAsyncError";
-import sendMessage from "../../utils/sendMessage";
-import sendResponse from "../../utils/sendResponse";
-import Config from "../config";
-import prisma from "../config/prisma";
-import AppError from "../errors/AppError";
+import { catchAsyncError } from "../../../utils/catchAsyncError";
+import sendResponse from "../../../utils/sendResponse";
+import Config from "../../config";
+import prisma from "../../config/prisma";
+import AppError from "../../errors/AppError";
 import authUtils from "./auth.utils";
+import sendMessage from "../../../utils/sendMessage";
 const signUp = catchAsyncError(async (req, res) => {
   const { body } = req;
   const isExist = await prisma.user.findFirst({

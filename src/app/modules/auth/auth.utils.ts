@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
-import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import Config from "../config";
+import Config from "../../config";
 interface ITokenPayload {
   id: string;
   email: string;
@@ -20,14 +19,6 @@ const generateRefreshToken = (id: string) => {
   return token;
 };
 
-const generateOTP = (length = 6) => {
-  const otp = crypto
-    .randomInt(0, Math.pow(10, length))
-    .toString()
-    .padStart(length, "0");
-  return otp;
-};
-
 const verifyAccessToken = (token: string) => {
   const { SECRET = "" } = Config.ACCESS_TOKEN;
   const payload = jwt.verify(token, SECRET);
@@ -43,7 +34,6 @@ const authUtils = {
   generateRefreshToken,
   hashPassword,
   verifyAccessToken,
-  generateOTP,
 };
 
 export default authUtils;
