@@ -6,17 +6,19 @@ import { isTokenExpired } from "../../utils/jwtToken";
 import Config from "../config";
 import prisma from "../config/prisma";
 import AppError from "../errors/AppError";
+import { TUserRole } from "../modules/auth/auth.interface";
 import authUtils from "../modules/auth/auth.utils";
 
 const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
+  req.cookies = req.cookies || {};
+  const accessToken = req.cookies?.accessToken;
 
   if (!accessToken) {
     throw new AppError(403, "Unauthorized");
   }
 
   if (!accessToken || isTokenExpired(accessToken)) {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
       throw new AppError(404, "Refresh token is missing");
     }
@@ -100,7 +102,7 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
 
   next();
 });
-const authorizeRoles = (...roles: string[]) => {
+const authorizeRoles = (...roles: TUserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user?.role)) {
       return next(
@@ -113,7 +115,10 @@ const authorizeRoles = (...roles: string[]) => {
     next();
   };
 };
-export default {
+
+const authMiddleWere = {
   isAuthenticateUser,
   authorizeRoles,
 };
+
+export default authMiddleWere;

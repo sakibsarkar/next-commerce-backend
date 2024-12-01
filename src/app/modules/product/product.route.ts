@@ -7,6 +7,7 @@ const router = Router();
 router.post(
   "/create",
   authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
   validSchema(productValidationSchema.create),
   productController.createProduct
 );
