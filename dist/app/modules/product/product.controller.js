@@ -97,11 +97,35 @@ const getProductDetailsById = (0, catchAsyncError_1.default)((req, res) => __awa
         data: product,
     });
 }));
+const getRelatedProductsByCategoryId = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { categoryId } = req.params;
+    const products = yield product_service_1.default.getRelatedProductsByCategoryId(categoryId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Products retrieved successfully",
+        data: products,
+    });
+}));
+const getFollowedShopProducts = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { limit } = req.query;
+    const products = yield product_service_1.default.getFollowedShopProducts(user.id, Number(limit || 10));
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Products retrieved successfully",
+        data: products,
+    });
+}));
 exports.productController = {
     createProduct,
     updateProduct,
     getProducts,
     getProductDetailsById,
     removeColor,
-    removeSize, deleteProductById
+    removeSize,
+    deleteProductById,
+    getRelatedProductsByCategoryId,
+    getFollowedShopProducts,
 };

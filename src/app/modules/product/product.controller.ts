@@ -16,6 +16,19 @@ const createProduct = catchAsyncError(async (req, res) => {
   });
 });
 
+const duplicateProduct = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { productId } = req.params;
+  const product = await productService.duplicateProduct(productId, user.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Product duplicated successfully",
+    data: product,
+  });
+});
+
 const updateProduct = catchAsyncError(async (req, res) => {
   const user = req.user!;
   const body = req.body || {};
@@ -139,6 +152,7 @@ const getFollowedShopProducts = catchAsyncError(async (req, res) => {
 
 export const productController = {
   createProduct,
+  duplicateProduct,
   updateProduct,
   getProducts,
   getProductDetailsById,

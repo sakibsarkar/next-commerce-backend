@@ -44,6 +44,50 @@ const createProduct = async (payload: any, user: any) => {
   return product;
 };
 
+const duplicateProduct = async (productId: string, userId: string) => {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: {
+      colors: true,
+      shopInfo: true,
+    },
+  });
+
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
+
+  if (product.shopInfo.ownerId !== userId) {
+    throw new AppError(403, "You are not authorized to duplicate this product");
+  }
+
+  const newProduct = await prisma.product.create({
+    data: {
+      name: product.name,
+      price: product.price,
+      discount: product.discount,
+      tag: product.tag,
+      description: product.description,
+      images: product.images,
+      categoryId: product.categoryId,
+      shopId: product.shopId,
+      colors: {
+        create: product.colors.map((color: any) => ({
+          color: color.color,
+          sizes: {
+            create: color.sizes.map((size: any) => ({
+              size: size.size,
+              quantity: size.quantity,
+            })),
+          },
+        })),
+      },
+    },
+  });
+
+  return newProduct;
+};
+
 const updateProduct = async (
   payload: any,
   productId: string,
@@ -58,11 +102,11 @@ const updateProduct = async (
   });
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new AppError(404, "Product not found");
   }
 
   if (product.shopInfo.ownerId !== userId) {
-    throw new Error("You are not authorized to update this product");
+    throw new AppError(403, "You are not authorized to update this product");
   }
 
   // Construct the data to update
@@ -120,12 +164,12 @@ const removeColor = async (colorId: string, userId: string) => {
   });
 
   if (!color) {
-    throw new Error("Color not found");
+    throw new AppError(404, "Color not found");
   }
 
   // Check authorization
   if (color.product.shopInfo.ownerId !== userId) {
-    throw new Error("You are not authorized to remove this color");
+    throw new AppError(404, "You are not authorized to remove this color");
   }
 
   // Delete the color (and cascade delete associated sizes)
@@ -145,12 +189,12 @@ const removeSize = async (sizeId: string, userId: string) => {
   });
 
   if (!size) {
-    throw new Error("Size not found");
+    throw new AppError(404, "Size not found");
   }
 
   // Check authorization
   if (size.color.product.shopInfo.ownerId !== userId) {
-    throw new Error("You are not authorized to remove this size");
+    throw new AppError(404, "You are not authorized to remove this size");
   }
 
   // Delete the size
@@ -168,11 +212,11 @@ const deleteProductById = async (productId: string, userId: string) => {
   });
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new AppError(404, "Product not found");
   }
 
   if (product.shopInfo.ownerId !== userId) {
-    throw new Error("You are not authorized to delete this product");
+    throw new AppError(403, "You are not authorized to delete this product");
   }
 
   await prisma.product.update({
@@ -283,7 +327,7 @@ const getRelatedProductsByCategoryId = async (categoryId: string) => {
 };
 
 const getFollowedShopProducts = async (userId: string, limit: number) => {
-  const followedShops = await prisma.shopFollowers.findMany({
+  const followedShops = await prisma.shopFollower.findMany({
     where: {
       userId: userId,
     },
@@ -321,6 +365,7 @@ const productService = {
   deleteProductById,
   getRelatedProductsByCategoryId,
   getFollowedShopProducts,
+  duplicateProduct,
 };
 
 export default productService;

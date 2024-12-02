@@ -219,6 +219,65 @@ const getProductDetailsById = (id) => __awaiter(void 0, void 0, void 0, function
     });
     return product;
 });
+const getRelatedProductsByCategoryId = (categoryId) => __awaiter(void 0, void 0, void 0, function* () {
+    const limit = 10;
+    const relatedProducts = yield prisma_1.default.product.findMany({
+        where: {
+            categoryId,
+            isDeleted: false,
+        },
+        include: {
+            colors: {
+                include: {
+                    sizes: true,
+                },
+            },
+            shopInfo: true,
+        },
+    });
+    if (relatedProducts.length < limit) {
+        const randomProducts = yield prisma_1.default.product.findMany({
+            take: limit - relatedProducts.length,
+            where: {
+                isDeleted: false,
+            },
+            include: {
+                colors: {
+                    include: {
+                        sizes: true,
+                    },
+                },
+                shopInfo: true,
+            },
+        });
+        return [...relatedProducts, ...randomProducts];
+    }
+    return relatedProducts;
+});
+const getFollowedShopProducts = (userId, limit) => __awaiter(void 0, void 0, void 0, function* () {
+    const followedShops = yield prisma_1.default.shopFollower.findMany({
+        where: {
+            userId: userId,
+        },
+        select: {
+            shopId: true,
+        },
+    });
+    const shopIds = followedShops.map((shopFollower) => shopFollower.shopId);
+    if (shopIds.length === 0) {
+        return [];
+    }
+    const products = yield prisma_1.default.product.findMany({
+        where: {
+            shopId: { in: shopIds },
+            isDeleted: false,
+        },
+        skip: 0,
+        take: limit,
+    });
+    const shuffledProducts = products.sort(() => 0.5 - Math.random());
+    return shuffledProducts;
+});
 const productService = {
     createProduct,
     getAllProducts,
@@ -227,5 +286,7 @@ const productService = {
     removeColor,
     removeSize,
     deleteProductById,
+    getRelatedProductsByCategoryId,
+    getFollowedShopProducts,
 };
 exports.default = productService;

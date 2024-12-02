@@ -12,5 +12,8 @@ const router = (0, express_1.Router)();
 router.post("/create", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), (0, validator_1.validSchema)(shop_validation_1.default.create), shop_controller_1.default.createShop);
 router.patch("/update", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), (0, validator_1.validSchema)(shop_validation_1.default.update), shop_controller_1.default.updateShop);
 router.get("/myshop", authMiddleWere_1.default.isAuthenticateUser, shop_controller_1.default.getShopByUser);
+router.post("/follow-unfollow", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), shop_controller_1.default.toggleFollowAShop);
+router.post("/is-following", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), shop_controller_1.default.isShopFollowedByUser);
+router.get("/follower-count", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), shop_controller_1.default.getShopFollowerCount);
 const shopRoute = router;
 exports.default = shopRoute;

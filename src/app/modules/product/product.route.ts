@@ -12,6 +12,13 @@ router.post(
   productController.createProduct
 );
 
+router.post(
+  "/duplicate/:productId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  productController.duplicateProduct
+);
+
 router.patch(
   "/update/:productId",
   authMiddleWere.isAuthenticateUser,

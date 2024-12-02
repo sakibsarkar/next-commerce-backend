@@ -47,9 +47,47 @@ const getShopByUser = (0, catchAsyncError_1.default)((req, res) => __awaiter(voi
         data: shop,
     });
 }));
+const toggleFollowAShop = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { shopId } = req.params;
+    const shop = yield shop_service_1.default.toggleFollowAShop(shopId, user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Shop followed successfully",
+        data: shop,
+    });
+}));
+const isShopFollowedByUser = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { shopId } = req.params;
+    const shop = yield shop_service_1.default.isShopFollowedByUser(shopId, user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Shop folow status updated successfully",
+        data: {
+            isFollowing: Boolean(shop),
+        },
+    });
+}));
+const getShopFollowerCount = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { shopId } = req.params;
+    const followerCount = yield shop_service_1.default.getShopFollowerCount(shopId, user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Shop follower count retrieved successfully",
+        data: followerCount,
+    });
+}));
 const shopController = {
     createShop,
     getShopByUser,
     updateShop,
+    toggleFollowAShop,
+    isShopFollowedByUser,
+    getShopFollowerCount,
 };
 exports.default = shopController;

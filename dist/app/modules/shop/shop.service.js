@@ -53,9 +53,70 @@ const getShopByUser = (userId) => __awaiter(void 0, void 0, void 0, function* ()
     });
     return shop;
 });
+const toggleFollowAShop = (shopId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExistShop = yield prisma_1.default.shop.findUnique({
+        where: {
+            id: shopId,
+        },
+    });
+    if (!isExistShop) {
+        const result = yield prisma_1.default.shopFollower.deleteMany({
+            where: {
+                userId: userId,
+                shopId: shopId,
+            },
+        });
+        return result;
+    }
+    const isAlreadyFollowing = yield prisma_1.default.shopFollower.findFirst({
+        where: {
+            userId: userId,
+            shopId: shopId,
+        },
+    });
+    if (isAlreadyFollowing) {
+        throw new AppError_1.default(400, "You are already following this shop");
+    }
+    const follower = yield prisma_1.default.shopFollower.create({
+        data: {
+            userId: userId,
+            shopId: shopId,
+        },
+    });
+    return follower;
+});
+const isShopFollowedByUser = (shopId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const follower = yield prisma_1.default.shopFollower.findFirst({
+        where: {
+            userId: userId,
+            shopId: shopId,
+        },
+    });
+    return follower;
+});
+const getShopFollowerCount = (shopId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const followerCount = yield prisma_1.default.shopFollower.count({
+        where: {
+            shopId: shopId,
+        },
+    });
+    const isFollowing = yield prisma_1.default.shopFollower.findFirst({
+        where: {
+            userId: userId,
+            shopId: shopId,
+        },
+    });
+    return {
+        count: followerCount,
+        isFollowing: Boolean(isFollowing),
+    };
+});
 const shopService = {
     createShop,
     getShopByUser,
     updateShop,
+    toggleFollowAShop,
+    isShopFollowedByUser,
+    getShopFollowerCount,
 };
 exports.default = shopService;

@@ -16,5 +16,7 @@ router.delete("/remove/size/:sizeId", authMiddleWere_1.default.isAuthenticateUse
 router.delete("/delete/:productId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), product_controller_1.productController.deleteProductById);
 router.get("/get", product_controller_1.productController.getProducts);
 router.get("/get/:id", product_controller_1.productController.getProductDetailsById);
+router.get("/get-related/:categoryId", product_controller_1.productController.getRelatedProductsByCategoryId);
+router.get("/shop-follow", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), product_controller_1.productController.getFollowedShopProducts);
 const productRoute = router;
 exports.default = productRoute;
