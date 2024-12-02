@@ -53,9 +53,80 @@ const getShopByUser = async (userId: string) => {
   return shop;
 };
 
+const toggleFollowAShop = async (shopId: string, userId: string) => {
+  const isExistShop = await prisma.shop.findUnique({
+    where: {
+      id: shopId,
+    },
+  });
+
+  if (!isExistShop) {
+    const result = await prisma.shopFollower.deleteMany({
+      where: {
+        userId: userId,
+        shopId: shopId,
+      },
+    });
+
+    return result;
+  }
+
+  const isAlreadyFollowing = await prisma.shopFollower.findFirst({
+    where: {
+      userId: userId,
+      shopId: shopId,
+    },
+  });
+
+  if (isAlreadyFollowing) {
+    throw new AppError(400, "You are already following this shop");
+  }
+
+  const follower = await prisma.shopFollower.create({
+    data: {
+      userId: userId,
+      shopId: shopId,
+    },
+  });
+  return follower;
+};
+
+const isShopFollowedByUser = async (shopId: string, userId: string) => {
+  const follower = await prisma.shopFollower.findFirst({
+    where: {
+      userId: userId,
+      shopId: shopId,
+    },
+  });
+  return follower;
+};
+
+const getShopFollowerCount = async (shopId: string, userId: string) => {
+  const followerCount = await prisma.shopFollower.count({
+    where: {
+      shopId: shopId,
+    },
+  });
+
+  const isFollowing = await prisma.shopFollower.findFirst({
+    where: {
+      userId: userId,
+      shopId: shopId,
+    },
+  });
+
+  return {
+    count: followerCount,
+    isFollowing: Boolean(isFollowing),
+  };
+};
+
 const shopService = {
   createShop,
   getShopByUser,
   updateShop,
+  toggleFollowAShop,
+  isShopFollowedByUser,
+  getShopFollowerCount,
 };
 export default shopService;

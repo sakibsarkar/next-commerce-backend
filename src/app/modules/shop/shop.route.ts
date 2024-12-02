@@ -29,5 +29,26 @@ router.get(
   shopController.getShopByUser
 );
 
+router.post(
+  "/follow-unfollow",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("CUSTOMER"),
+  shopController.toggleFollowAShop
+);
+
+router.post(
+  "/is-following",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("CUSTOMER"),
+  shopController.isShopFollowedByUser
+);
+
+router.get(
+  "/follower-count",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("CUSTOMER"),
+  shopController.getShopFollowerCount
+);
+
 const shopRoute = router;
 export default shopRoute;

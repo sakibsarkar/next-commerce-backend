@@ -33,7 +33,7 @@ model User {
   updatedAt           DateTime         @updatedAt
   Payment             Payment[]
   shop                Shop?
-  ShopFollowers       ShopFollowers[]
+  ShopFollower        ShopFollower[]
   Order               Order[]
   ShippingAdress      ShippingAdress[]
   Review              Review[]
@@ -59,13 +59,13 @@ model Shop {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   Product        Product[]
-  ShopFollowers  ShopFollowers[]
+  ShopFollower   ShopFollower[]
   Order          Order[]
   Payment        Payment[]
   ReviewResponse ReviewResponse[]
 }
 
-model ShopFollowers {
+model ShopFollower {
   id       String @id @default(uuid())
   shopId   String
   shopInfo Shop   @relation(fields: [shopId], references: [id])
@@ -150,13 +150,13 @@ model Order {
 }
 
 model Review {
-  id          String  @id @default(uuid())
-  images      String? @default("")
-  description String
-  userId      String
-  userInfo    User    @relation(fields: [userId], references: [id])
-  orderId     String
-  orderInfo   Order   @relation(fields: [orderId], references: [id])
+  id             String          @id @default(uuid())
+  images         String?         @default("")
+  description    String
+  userId         String
+  userInfo       User            @relation(fields: [userId], references: [id])
+  orderId        String
+  orderInfo      Order           @relation(fields: [orderId], references: [id])
   productId      String
   productInfo    Product         @relation(fields: [productId], references: [id])
   createdAt      DateTime        @default(now())
@@ -168,12 +168,12 @@ model Review {
 }
 
 model ReviewResponse {
-  id         String @id @default(uuid())
+  id          String @id @default(uuid())
   description String
-  reviewId   String @unique
-  reviewInfo Review @relation(fields: [reviewId], references: [id])
-  shopId     String
-  shopInfo   Shop   @relation(fields: [shopId], references: [id])
+  reviewId    String @unique
+  reviewInfo  Review @relation(fields: [reviewId], references: [id])
+  shopId      String
+  shopInfo    Shop   @relation(fields: [shopId], references: [id])
 }
 
 enum PaymentStatus {

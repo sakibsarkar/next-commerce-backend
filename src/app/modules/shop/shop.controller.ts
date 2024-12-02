@@ -36,10 +36,52 @@ const getShopByUser = catchAsyncError(async (req, res) => {
     data: shop,
   });
 });
+
+const toggleFollowAShop = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { shopId } = req.params;
+  const shop = await shopService.toggleFollowAShop(shopId, user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Shop followed successfully",
+    data: shop,
+  });
+});
+
+const isShopFollowedByUser = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { shopId } = req.params;
+  const shop = await shopService.isShopFollowedByUser(shopId, user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Shop folow status updated successfully",
+    data: {
+      isFollowing: Boolean(shop),
+    },
+  });
+});
+
+const getShopFollowerCount = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { shopId } = req.params;
+  const followerCount = await shopService.getShopFollowerCount(shopId, user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Shop follower count retrieved successfully",
+    data: followerCount,
+  });
+});
+
 const shopController = {
   createShop,
   getShopByUser,
   updateShop,
+  toggleFollowAShop,
+  isShopFollowedByUser,
+  getShopFollowerCount,
 };
 
 export default shopController;
