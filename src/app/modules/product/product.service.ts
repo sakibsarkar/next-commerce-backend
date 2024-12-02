@@ -257,6 +257,7 @@ const getAllProducts = async (query: Record<string, any>) => {
     ...queryResult,
     include: {
       shopInfo: true,
+      categoryInfo: true,
       colors: {
         include: {
           sizes: true,
