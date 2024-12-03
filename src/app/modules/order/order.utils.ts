@@ -6,7 +6,10 @@ const generateTransactionId = () => {
   const lastFourDigits = uuid.slice(-4);
   return `TNX-${timestamp}-${lastFourDigits}}`;
 };
-
+const getDiscountPrice = (price: number, discount: number = 0) => {
+  return Math.round(price - (price * discount) / 100);
+};
 export const OrderUtils = {
   generateTransactionId,
+  getDiscountPrice,
 };

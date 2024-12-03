@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const create = z.object({
-  paymentMethodId: z.string(),
+  paymentIntentId: z.string(),
   shippingAddressId: z.string(),
   orderItems: z.array(
     z

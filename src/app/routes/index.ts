@@ -2,8 +2,10 @@ import { Router } from "express";
 import authRoute from "../modules/auth/auth.route";
 import mockRoute from "../modules/mock.controller";
 import orderRoute from "../modules/order/order.route";
+import paymentRoute from "../modules/payment/payment.route";
 import productRoute from "../modules/product/product.route";
 import reviewRoute from "../modules/review/review.route";
+import shippingAddressRoute from "../modules/shippingAddress/shippingAddress.route";
 import shopRoute from "../modules/shop/shop.route";
 
 const router = Router();
@@ -28,6 +30,14 @@ const moduleRoute = [
   {
     path: "/review",
     route: reviewRoute,
+  },
+  {
+    path: "/shipping-address",
+    route: shippingAddressRoute,
+  },
+  {
+    path: "/payment",
+    route: paymentRoute,
   },
   {
     path: "/mock",

@@ -4,12 +4,12 @@ import orderService from "./order.service";
 
 const createOrder = catchAsyncError(async (req, res) => {
   const user = req.user!;
-  const { paymentMethodId, orderItems, shippingAddressId } = req.body;
+  const { paymentIntentId, orderItems, shippingAddressId } = req.body;
 
   const transactionId = await orderService.createOrder(
     orderItems,
     user.id,
-    paymentMethodId!,
+    paymentIntentId!,
     shippingAddressId
   );
 

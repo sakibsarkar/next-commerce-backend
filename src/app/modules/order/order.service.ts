@@ -1,5 +1,4 @@
 import QueryBuilder from "../../builder/QueryBuilder";
-import Config from "../../config";
 import prisma from "../../config/prisma";
 import stripe from "../../config/stripe";
 import AppError from "../../errors/AppError";
@@ -9,10 +8,10 @@ import { OrderUtils } from "./order.utils";
 const createOrder = async (
   payload: IOrderPayload[],
   userId: string,
-  paymentMethodId: string,
+  paymentIntentId: string,
   shippingAddressId: string
 ) => {
-  if (!paymentMethodId) {
+  if (!paymentIntentId) {
     throw new AppError(400, "Payment method id is required");
   }
 
@@ -37,7 +36,7 @@ const createOrder = async (
       if (size.quantity < item.quantity) {
         throw new AppError(
           400,
-          `Insufficient quantity for size:${size.size} of color:${color.color} of product ${product.name}`
+          `Insufficient quantity for size:${size.size} of color:${color.color} of product ${product.name}. Only ${size.quantity} available but requested ${item.quantity}`
         );
       }
 
@@ -58,19 +57,19 @@ const createOrder = async (
         data: { quantity: size.quantity - item.quantity },
       });
 
-      totalAmount += product.price * item.quantity;
+      const grandPrice = product.discount
+        ? OrderUtils.getDiscountPrice(product.price, product.discount)
+        : product.price;
+
+      totalAmount += grandPrice * item.quantity;
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalAmount * 100),
-      currency: "usd",
-      // payment_method: paymentMethodId,
-      return_url: Config.FRONTEND_URL || "http://localhost:3000",
-      confirm: true,
-    });
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
     const paymentStatus =
       paymentIntent.status === "succeeded" ? "SUCCESS" : "FAILED";
+
+    const paymentAmount = paymentIntent.amount / 100;
     await tx.payment.create({
       data: {
         userId,
@@ -82,6 +81,14 @@ const createOrder = async (
 
     if (paymentStatus !== "SUCCESS") {
       throw new AppError(400, "Payment failed");
+    }
+
+    if (Math.abs(paymentAmount - totalAmount) > 10) {
+      // 10 is the tolerance
+      throw new AppError(
+        400,
+        `Payment amount does not match total amount totalAmount:${totalAmount} paymentAmount:${paymentAmount}`
+      );
     }
   });
 
