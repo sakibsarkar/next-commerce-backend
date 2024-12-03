@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authRoute from "../modules/auth/auth.route";
+import categoryRoute from "../modules/category/category.route";
 import mockRoute from "../modules/mock.controller";
 import orderRoute from "../modules/order/order.route";
 import paymentRoute from "../modules/payment/payment.route";
@@ -38,6 +39,10 @@ const moduleRoute = [
   {
     path: "/payment",
     route: paymentRoute,
+  },
+  {
+    path: "/category",
+    route: categoryRoute,
   },
   {
     path: "/mock",

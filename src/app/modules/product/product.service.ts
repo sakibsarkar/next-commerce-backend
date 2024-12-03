@@ -229,8 +229,9 @@ const deleteProductById = async (productId: string, userId: string) => {
 const getAllProducts = async (query: Record<string, any>) => {
   const maxPrice = query.maxPrice ? Number(query.maxPrice) : undefined;
   const minPrice = query.minPrice ? Number(query.minPrice) : undefined;
+  const categories = query.categories ? query.categories.split(",") : undefined;
 
-  const explodedQueryParams = ["minPrice", "maxPrice"];
+  const explodedQueryParams = ["minPrice", "maxPrice", "categories"];
 
   explodedQueryParams.forEach((key) => delete query[key]);
   let findQuery: Record<string, any> = {
@@ -244,6 +245,11 @@ const getAllProducts = async (query: Record<string, any>) => {
   if (minPrice) {
     findQuery = { ...findQuery, price: { gte: minPrice } };
   }
+
+  if (categories) {
+    findQuery = { ...findQuery, categoryId: { in: categories } };
+  }
+
   const queryBuilder = new QueryBuilder(query)
     .paginate()
     .filter()
@@ -255,6 +261,7 @@ const getAllProducts = async (query: Record<string, any>) => {
 
   const products = await prisma.product.findMany({
     ...queryResult,
+
     include: {
       shopInfo: true,
       categoryInfo: true,
@@ -268,6 +275,7 @@ const getAllProducts = async (query: Record<string, any>) => {
   const totalCount = await prisma.product.count({
     where: queryResult.where || {},
   });
+
   return { products, metaQuery, totalCount };
 };
 
