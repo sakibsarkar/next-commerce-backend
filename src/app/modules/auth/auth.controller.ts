@@ -51,7 +51,7 @@ const signUp = catchAsyncError(async (req, res) => {
       httpOnly: true,
       secure: Config.NODE_ENV === "production",
     });
-  sendResponse(res, {
+  res.json({
     data: {
       result: {
         ...result,
@@ -119,18 +119,16 @@ const login = catchAsyncError(async (req, res) => {
       httpOnly: true,
       secure: Config.NODE_ENV === "production",
     });
-  sendResponse(res, {
+  res.json({
     data: {
-      result: {
-        ...isExist,
-        password: undefined,
-        passwordResetToken: undefined,
-        passwordResetExpiry: undefined,
-        otp: undefined,
-        otpExpiry: undefined,
-      },
-      accessToken,
+      ...isExist,
+      password: undefined,
+      passwordResetToken: undefined,
+      passwordResetExpiry: undefined,
+      otp: undefined,
+      otpExpiry: undefined,
     },
+    accessToken,
     success: true,
     statusCode: 200,
     message: "User logged in successfully",
@@ -232,6 +230,44 @@ const updateProfile = catchAsyncError(async (req, res) => {
       otpExpiry: undefined,
     },
     message: "Profile updated successfully",
+  });
+});
+
+const updateUserProfileImage = catchAsyncError(async (req, res) => {
+  const file = req.file;
+  const user = req.user!;
+  if (!file) {
+    return sendResponse(res, {
+      message: "file not found",
+      success: false,
+      data: null,
+      statusCode: 404,
+    });
+  }
+  const url = file.path;
+  if (!url) {
+    return sendResponse(res, {
+      message: "failed to upload image",
+      success: false,
+      data: null,
+      statusCode: 400,
+    });
+  }
+
+  const result = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      image: url,
+    },
+  });
+
+  sendResponse(res, {
+    data: result,
+    message: "image updated successfully",
+    statusCode: 200,
+    success: true,
   });
 });
 
@@ -485,6 +521,7 @@ const authController = {
   logout,
   author,
   updateProfile,
+  updateUserProfileImage,
   refreshToken,
   forgotPassword,
   resetPassword,

@@ -11,6 +11,9 @@ const {
   SALT_ROUND,
   FRONTEND_URL,
   STRIPE_SK,
+  CN_CLOUD_NAME,
+  CN_API_KEY,
+  CN_API_SECRET,
 } = process.env;
 
 const Config = {
@@ -32,6 +35,9 @@ const Config = {
     EXPIRY: "5m",
   },
   STRIPE_SECRET_KEY: STRIPE_SK,
+  CN_CLOUD_NAME: CN_CLOUD_NAME,
+  CN_API_KEY: CN_API_KEY,
+  CN_API_SECRET: CN_API_SECRET,
 };
 
 export default Config;

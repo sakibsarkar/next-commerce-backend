@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { multerUpload } from "../../config/multer";
 import authMiddleWere from "../../middlewares/authMiddleWere";
 import { validSchema } from "../../middlewares/validator";
 import authController from "./auth.controller";
@@ -23,11 +24,19 @@ router.patch(
   authMiddleWere.isAuthenticateUser,
   authController.updateProfile
 );
+
+router.put(
+  "/update-profile-image",
+  authMiddleWere.isAuthenticateUser,
+  multerUpload.single("file"),
+  authController.updateUserProfileImage
+);
+
 router.post("/refresh-token", authController.refreshToken);
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/reset-password", authController.resetPassword);
 
-router.post(
+router.put(
   "/change-password",
   authMiddleWere.isAuthenticateUser,
   authController.changePassword
