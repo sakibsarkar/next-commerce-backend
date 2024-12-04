@@ -40,6 +40,10 @@ const createOrder = async (
         );
       }
 
+      const grandPrice = product.discount
+        ? OrderUtils.getDiscountPrice(product.price, product.discount)
+        : product.price;
+
       await tx.order.create({
         data: {
           userId,
@@ -47,8 +51,9 @@ const createOrder = async (
           productId: product.id,
           color: color.color,
           size: size.size,
-          shippindId: shippingAddressId,
+          shippingId: shippingAddressId,
           quantity: item.quantity,
+          total: Math.round(grandPrice),
         },
       });
 
@@ -56,10 +61,6 @@ const createOrder = async (
         where: { id: size.id },
         data: { quantity: size.quantity - item.quantity },
       });
-
-      const grandPrice = product.discount
-        ? OrderUtils.getDiscountPrice(product.price, product.discount)
-        : product.price;
 
       totalAmount += grandPrice * item.quantity;
     }
@@ -116,6 +117,13 @@ const getUserOrders = async (
           price: true,
           name: true,
           images: true,
+        },
+      },
+      shippingInfo: true,
+      shopInfo: {
+        select: {
+          name: true,
+          logo: true,
         },
       },
     },

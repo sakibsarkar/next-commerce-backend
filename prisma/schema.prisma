@@ -130,24 +130,24 @@ enum OrderStatus {
 }
 
 model Order {
-  id          String  @id @default(uuid())
-  productId   String
-  productInfo Product @relation(fields: [productId], references: [id])
-  quantity    Int
-  size        String
-  color       String
-  userId      String
-  userInfo    User    @relation(fields: [userId], references: [id])
-  shopId      String
-  shopInfo    Shop    @relation(fields: [shopId], references: [id])
-
-  shippindId   String
-  shippingInfo ShippingAddress @relation(fields: [shippindId], references: [id])
-
-  status    OrderStatus @default(PENDING)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  Review    Review[]
+  id             String          @id @default(uuid())
+  productId      String
+  productInfo    Product         @relation(fields: [productId], references: [id])
+  quantity       Int
+  size           String
+  color          String
+  total          Int             @default(0)
+  userId         String
+  userInfo       User            @relation(fields: [userId], references: [id])
+  shopId         String
+  shopInfo       Shop            @relation(fields: [shopId], references: [id])
+  shippingId     String          @map("shippindId")
+  shippingInfo   ShippingAddress @relation(fields: [shippingId], references: [id])
+  hasReviewGiven Boolean         @default(false)
+  status         OrderStatus     @default(PENDING)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  Review         Review[]
 }
 
 model Review {
