@@ -29,8 +29,14 @@ router.get(
   shopController.getShopByUser
 );
 
-router.post(
-  "/follow-unfollow",
+router.get(
+  "/get/:shopId",
+  authMiddleWere.isAuthenticateUser,
+  shopController.getSopInformationByShopId
+);
+
+router.patch(
+  "/follow-unfollow/:shopId",
   authMiddleWere.isAuthenticateUser,
   authMiddleWere.authorizeRoles("CUSTOMER"),
   shopController.toggleFollowAShop
