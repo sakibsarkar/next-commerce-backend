@@ -30,7 +30,16 @@ const updateShop = async (userId: string, payload: Partial<IShop>) => {
   });
 
   if (!shop) {
-    throw new AppError(404, "Shop not found");
+    const result = await prisma.shop.create({
+      data: {
+        logo: payload.logo || "",
+        name: payload.name || "",
+        description: payload.description || "",
+        ownerId: userId,
+      },
+    });
+
+    return result;
   }
 
   const updatedShop = await prisma.shop.update({
@@ -50,7 +59,16 @@ const getShopByUser = async (userId: string) => {
       ownerId: userId,
     },
   });
-  return shop;
+  const followerCount = await prisma.shopFollower.count({
+    where: {
+      shopId: shop?.id || "",
+    },
+  });
+
+  return {
+    ...shop,
+    followerCount,
+  };
 };
 
 const toggleFollowAShop = async (shopId: string, userId: string) => {

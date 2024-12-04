@@ -24,7 +24,7 @@ router.patch(
 );
 
 router.get(
-  "/myshop",
+  "/my-shop",
   authMiddleWere.isAuthenticateUser,
   shopController.getShopByUser
 );

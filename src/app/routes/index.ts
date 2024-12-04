@@ -8,6 +8,7 @@ import productRoute from "../modules/product/product.route";
 import reviewRoute from "../modules/review/review.route";
 import shippingAddressRoute from "../modules/shippingAddress/shippingAddress.route";
 import shopRoute from "../modules/shop/shop.route";
+import uploadRoute from "../modules/upload/upload.route";
 
 const router = Router();
 
@@ -43,6 +44,10 @@ const moduleRoute = [
   {
     path: "/category",
     route: categoryRoute,
+  },
+  {
+    path: "/upload",
+    route: uploadRoute,
   },
   {
     path: "/mock",

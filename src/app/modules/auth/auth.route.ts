@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { multerUpload } from "../../config/multer";
+import { multerUpload } from "../../config/cloudinaryMulter.config";
 import authMiddleWere from "../../middlewares/authMiddleWere";
 import { validSchema } from "../../middlewares/validator";
 import authController from "./auth.controller";
 import authValidation from "./auth.validation";
 const router = Router();
 router.post(
-  "/signup",
+  "/register",
   validSchema(authValidation.create),
   authController.signUp
 );
