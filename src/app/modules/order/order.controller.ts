@@ -13,8 +13,6 @@ const createOrder = catchAsyncError(async (req, res) => {
     shippingAddressId
   );
 
-  
-
   sendResponse(res, {
     success: true,
     statusCode: 201,
@@ -60,10 +58,22 @@ const getVendorOrders = catchAsyncError(async (req, res) => {
   });
 });
 
+const moveOrderForShipment = catchAsyncError(async (req, res) => {
+  const { orderId } = req.params;
+  const user = req.user!;
+  const result = await orderService.moveOrderForShipment(orderId, user.id);
+  sendResponse(res, {
+    success: true,
+    data: result,
+    message: "Order moved for shipment successfully",
+  });
+});
+
 const orderController = {
   createOrder,
   getUserOrders,
   getVendorOrders,
+  moveOrderForShipment,
 };
 
 export default orderController;

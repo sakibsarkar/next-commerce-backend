@@ -25,5 +25,12 @@ router.get(
   orderController.getVendorOrders
 );
 
+router.put(
+  "/move-to-shipment/:orderId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  orderController.moveOrderForShipment
+);
+
 const orderRoute = router;
 export default orderRoute;

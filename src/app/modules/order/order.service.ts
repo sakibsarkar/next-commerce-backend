@@ -163,7 +163,7 @@ const getVendorOders = async (
 
     include: {
       userInfo: true,
-      shopInfo: true,
+      shippingInfo: true,
       productInfo: {
         select: {
           id: true,
@@ -182,10 +182,33 @@ const getVendorOders = async (
   };
 };
 
+const moveOrderForShipment = async (orderId: string, userId: string) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { shopInfo: true },
+  });
+
+  if (!order) {
+    throw new AppError(404, "Order not found");
+  }
+
+  if (order.shopInfo.ownerId !== userId) {
+    throw new AppError(403, "You are not authorized to move this Order");
+  }
+
+  const result = await prisma.order.update({
+    where: { id: orderId },
+    data: { status: "ON_SHIPMENT" },
+  });
+
+  return result;
+};
+
 const orderService = {
   createOrder,
   getUserOrders,
   getVendorOders,
+  moveOrderForShipment,
 };
 
 export default orderService;
