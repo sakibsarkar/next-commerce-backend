@@ -59,7 +59,7 @@ const signUp = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, vo
         httpOnly: true,
         secure: config_1.default.NODE_ENV === "production",
     });
-    (0, sendResponse_1.default)(res, {
+    res.json({
         data: {
             result: Object.assign(Object.assign({}, result), { password: undefined, passwordResetToken: undefined, passwordResetExpiry: undefined, otp: undefined, otpExpiry: undefined }),
             accessToken,
@@ -114,11 +114,9 @@ const login = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, voi
         httpOnly: true,
         secure: config_1.default.NODE_ENV === "production",
     });
-    (0, sendResponse_1.default)(res, {
-        data: {
-            result: Object.assign(Object.assign({}, isExist), { password: undefined, passwordResetToken: undefined, passwordResetExpiry: undefined, otp: undefined, otpExpiry: undefined }),
-            accessToken,
-        },
+    res.json({
+        data: Object.assign(Object.assign({}, isExist), { password: undefined, passwordResetToken: undefined, passwordResetExpiry: undefined, otp: undefined, otpExpiry: undefined }),
+        accessToken,
         success: true,
         statusCode: 200,
         message: "User logged in successfully",
@@ -199,6 +197,41 @@ const updateProfile = (0, catchAsyncError_1.default)((req, res) => __awaiter(voi
         statusCode: 200,
         data: Object.assign(Object.assign({}, result), { password: undefined, passwordResetToken: undefined, passwordResetExpiry: undefined, otp: undefined, otpExpiry: undefined }),
         message: "Profile updated successfully",
+    });
+}));
+const updateUserProfileImage = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = req.file;
+    const user = req.user;
+    if (!file) {
+        return (0, sendResponse_1.default)(res, {
+            message: "file not found",
+            success: false,
+            data: null,
+            statusCode: 404,
+        });
+    }
+    const url = file.path;
+    if (!url) {
+        return (0, sendResponse_1.default)(res, {
+            message: "failed to upload image",
+            success: false,
+            data: null,
+            statusCode: 400,
+        });
+    }
+    const result = yield prisma_1.default.user.update({
+        where: {
+            id: user.id,
+        },
+        data: {
+            image: url,
+        },
+    });
+    (0, sendResponse_1.default)(res, {
+        data: result,
+        message: "image updated successfully",
+        statusCode: 200,
+        success: true,
     });
 }));
 const logout = (0, catchAsyncError_1.default)((_req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -403,6 +436,7 @@ const authController = {
     logout,
     author,
     updateProfile,
+    updateUserProfileImage,
     refreshToken,
     forgotPassword,
     resetPassword,

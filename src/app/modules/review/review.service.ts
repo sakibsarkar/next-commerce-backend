@@ -23,27 +23,12 @@ const createReview = async (payload: IReview, userId: string) => {
   const result = await prisma.$transaction(async (tx) => {
     const review = await tx.review.create({
       data: {
-        images: payload.images,
+        image: payload.images,
         description: payload.description,
+        rating: payload.rating,
         orderId: payload.orderId,
         userId: userId,
         productId: isOrderExist.productId,
-      },
-    });
-
-    const avgRating = await tx.review.aggregate({
-      where: { productId: isOrderExist.productId },
-      _avg: {
-        rating: true,
-      },
-    });
-
-    await tx.product.update({
-      where: {
-        id: isOrderExist.productId,
-      },
-      data: {
-        avgRating: avgRating._avg.rating || 0,
       },
     });
 
@@ -57,6 +42,22 @@ const createReview = async (payload: IReview, userId: string) => {
     });
 
     return review;
+  });
+
+  const avgRating = await prisma.review.aggregate({
+    where: { productId: isOrderExist.productId },
+    _avg: {
+      rating: true,
+    },
+  });
+
+  await prisma.product.update({
+    where: {
+      id: isOrderExist.productId,
+    },
+    data: {
+      avgRating: avgRating._avg.rating || 0,
+    },
   });
 
   return result;
@@ -159,9 +160,75 @@ const createReply = async (
         hasReply: true,
       },
     });
+
     return reply;
   });
   return result;
+};
+
+const getUsersShopReviews = async (
+  userId: string,
+  query: Record<string, unknown>
+) => {
+  const page = Number(query.page || 1);
+  const limit = Number(query.limit || 10);
+
+  const skip = (page - 1) * limit;
+  const take = limit;
+
+  const shop = await prisma.shop.findUnique({
+    where: {
+      ownerId: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!shop) {
+    throw new AppError(404, "Shop not found");
+  }
+
+  const reviews = await prisma.review.findMany({
+    where: {
+      productInfo: {
+        shopId: shop?.id,
+      },
+    },
+    include: {
+      userInfo: true,
+      reviewResponse: true,
+      productInfo: {
+        select: {
+          id: true,
+          name: true,
+          images: true,
+        },
+      },
+    },
+    skip,
+    take,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const totalReviews = await prisma.review.count({
+    where: {
+      productInfo: {
+        shopId: shop.id,
+      },
+    },
+  });
+
+  return {
+    reviews,
+    meta: {
+      currentPage: page,
+      limit,
+      totalDoc: totalReviews,
+    },
+  };
 };
 
 const reviewService = {
@@ -169,6 +236,7 @@ const reviewService = {
   getAllReviewByProductId,
   getReplyByReviewId,
   createReply,
+  getUsersShopReviews,
 };
 
 export default reviewService;

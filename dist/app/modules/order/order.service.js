@@ -13,13 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
-const config_1 = __importDefault(require("../../config"));
 const prisma_1 = __importDefault(require("../../config/prisma"));
 const stripe_1 = __importDefault(require("../../config/stripe"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const order_utils_1 = require("./order.utils");
-const createOrder = (payload, userId, paymentMethodId, shippingAddressId) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!paymentMethodId) {
+const createOrder = (payload, userId, paymentIntentId, shippingAddressId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!paymentIntentId) {
         throw new AppError_1.default(400, "Payment method id is required");
     }
     let totalAmount = 0;
@@ -39,8 +38,11 @@ const createOrder = (payload, userId, paymentMethodId, shippingAddressId) => __a
             if (!size)
                 throw new AppError_1.default(404, "Size not found");
             if (size.quantity < item.quantity) {
-                throw new AppError_1.default(400, `Insufficient quantity for size:${size.size} of color:${color.color} of product ${product.name}`);
+                throw new AppError_1.default(400, `Insufficient quantity for size:${size.size} of color:${color.color} of product ${product.name}. Only ${size.quantity} available but requested ${item.quantity}`);
             }
+            const grandPrice = product.discount
+                ? order_utils_1.OrderUtils.getDiscountPrice(product.price, product.discount)
+                : product.price;
             yield tx.order.create({
                 data: {
                     userId,
@@ -48,24 +50,20 @@ const createOrder = (payload, userId, paymentMethodId, shippingAddressId) => __a
                     productId: product.id,
                     color: color.color,
                     size: size.size,
-                    shippindId: shippingAddressId,
+                    shippingId: shippingAddressId,
                     quantity: item.quantity,
+                    total: Math.round(grandPrice),
                 },
             });
             yield tx.size.update({
                 where: { id: size.id },
                 data: { quantity: size.quantity - item.quantity },
             });
-            totalAmount += product.price * item.quantity;
+            totalAmount += grandPrice * item.quantity;
         }
-        const paymentIntent = yield stripe_1.default.paymentIntents.create({
-            amount: Math.round(totalAmount * 100),
-            currency: "usd",
-            // payment_method: paymentMethodId,
-            return_url: config_1.default.FRONTEND_URL || "http://localhost:3000",
-            confirm: true,
-        });
+        const paymentIntent = yield stripe_1.default.paymentIntents.retrieve(paymentIntentId);
         const paymentStatus = paymentIntent.status === "succeeded" ? "SUCCESS" : "FAILED";
+        const paymentAmount = paymentIntent.amount / 100;
         yield tx.payment.create({
             data: {
                 userId,
@@ -76,6 +74,10 @@ const createOrder = (payload, userId, paymentMethodId, shippingAddressId) => __a
         });
         if (paymentStatus !== "SUCCESS") {
             throw new AppError_1.default(400, "Payment failed");
+        }
+        if (Math.abs(paymentAmount - totalAmount) > 10) {
+            // 10 is the tolerance
+            throw new AppError_1.default(400, `Payment amount does not match total amount totalAmount:${totalAmount} paymentAmount:${paymentAmount}`);
         }
     }));
     return tnxId;
@@ -94,6 +96,13 @@ const getUserOrders = (userId, query) => __awaiter(void 0, void 0, void 0, funct
                     price: true,
                     name: true,
                     images: true,
+                },
+            },
+            shippingInfo: true,
+            shopInfo: {
+                select: {
+                    name: true,
+                    logo: true,
                 },
             },
         } }));

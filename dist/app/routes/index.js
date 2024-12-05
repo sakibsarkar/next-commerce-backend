@@ -5,11 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_route_1 = __importDefault(require("../modules/auth/auth.route"));
+const category_route_1 = __importDefault(require("../modules/category/category.route"));
 const mock_controller_1 = __importDefault(require("../modules/mock.controller"));
 const order_route_1 = __importDefault(require("../modules/order/order.route"));
+const payment_route_1 = __importDefault(require("../modules/payment/payment.route"));
 const product_route_1 = __importDefault(require("../modules/product/product.route"));
 const review_route_1 = __importDefault(require("../modules/review/review.route"));
+const shippingAddress_route_1 = __importDefault(require("../modules/shippingAddress/shippingAddress.route"));
 const shop_route_1 = __importDefault(require("../modules/shop/shop.route"));
+const upload_route_1 = __importDefault(require("../modules/upload/upload.route"));
 const router = (0, express_1.Router)();
 const moduleRoute = [
     {
@@ -31,6 +35,22 @@ const moduleRoute = [
     {
         path: "/review",
         route: review_route_1.default,
+    },
+    {
+        path: "/shipping-address",
+        route: shippingAddress_route_1.default,
+    },
+    {
+        path: "/payment",
+        route: payment_route_1.default,
+    },
+    {
+        path: "/category",
+        route: category_route_1.default,
+    },
+    {
+        path: "/upload",
+        route: upload_route_1.default,
     },
     {
         path: "/mock",

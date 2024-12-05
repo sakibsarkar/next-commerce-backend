@@ -17,13 +17,15 @@ const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const index_1 = __importDefault(require("../src/app/routes/index"));
+const config_1 = __importDefault(require("./app/config"));
 const prisma_1 = __importDefault(require("./app/config/prisma"));
 const error_1 = __importDefault(require("./app/middlewares/error"));
 const not_found_1 = require("./app/middlewares/not-found");
 const app = (0, express_1.default)();
 // Middlewares
 app.use((0, cors_1.default)({
-    origin: "*",
+    origin: [config_1.default.FRONTEND_URL],
+    credentials: true,
 }));
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)("dev"));

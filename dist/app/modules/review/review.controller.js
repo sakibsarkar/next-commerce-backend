@@ -38,6 +38,17 @@ const getAllReviewByProductId = (0, catchAsyncError_1.default)((req, res) => __a
         meta: Object.assign({ totalDoc: totalCount }, metaQuery),
     });
 }));
+const getUsersShopReview = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { meta, reviews } = yield review_service_1.default.getUsersShopReviews(user.id, req.query);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        data: reviews,
+        meta: meta,
+        statusCode: 200,
+        message: "Reviews fetched successfully",
+    });
+}));
 const getReplyByReviewId = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { reviewId } = req.params;
     const reply = yield review_service_1.default.getReplyByReviewId(reviewId);
@@ -64,5 +75,6 @@ const reviewController = {
     getAllReviewByProductId,
     getReplyByReviewId,
     createReply,
+    getUsersShopReview,
 };
 exports.default = reviewController;

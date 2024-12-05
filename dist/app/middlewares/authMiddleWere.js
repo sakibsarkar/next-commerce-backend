@@ -24,12 +24,12 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
     req.cookies = req.cookies || {};
     const accessToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.accessToken;
     if (!accessToken) {
-        throw new AppError_1.default(403, "Unauthorized");
+        throw new AppError_1.default(401, "Unauthorized");
     }
     if (!accessToken || (0, jwtToken_1.isTokenExpired)(accessToken)) {
         const refreshToken = (_b = req.cookies) === null || _b === void 0 ? void 0 : _b.refreshToken;
         if (!refreshToken) {
-            throw new AppError_1.default(404, "Refresh token is missing");
+            throw new AppError_1.default(401, "Refresh token is missing");
         }
         const decryptedJwt = jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
         const result = yield prisma_1.default.user.findUnique({
@@ -62,7 +62,7 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
             },
         });
         if (!isExistUsr) {
-            throw new AppError_1.default(403, "Unauthorized");
+            throw new AppError_1.default(401, "Unauthorized");
         }
         const pay = {
             id: isExistUsr.id,
@@ -74,7 +74,7 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
     if (accessToken && !(0, jwtToken_1.isTokenExpired)(accessToken)) {
         const payload = auth_utils_1.default.verifyAccessToken(accessToken);
         if (!payload) {
-            throw new AppError_1.default(403, "Unauthorized");
+            throw new AppError_1.default(401, "Unauthorized");
         }
         const { id } = payload;
         const isExistUsr = yield prisma_1.default.user.findUnique({
@@ -83,7 +83,7 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
             },
         });
         if (!isExistUsr) {
-            throw new AppError_1.default(403, "Unauthorized");
+            throw new AppError_1.default(401, "Unauthorized");
         }
         const pay = {
             id: isExistUsr.id,

@@ -10,6 +10,7 @@ const product_controller_1 = require("./product.controller");
 const product_validation_1 = __importDefault(require("./product.validation"));
 const router = (0, express_1.Router)();
 router.post("/create", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), (0, validator_1.validSchema)(product_validation_1.default.create), product_controller_1.productController.createProduct);
+router.post("/duplicate/:productId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), product_controller_1.productController.duplicateProduct);
 router.patch("/update/:productId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), (0, validator_1.validSchema)(product_validation_1.default.update), product_controller_1.productController.updateProduct);
 router.delete("/remove/color/:colorId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), product_controller_1.productController.removeColor);
 router.delete("/remove/size/:sizeId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), product_controller_1.productController.removeSize);

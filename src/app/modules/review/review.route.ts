@@ -22,6 +22,12 @@ router.post(
 );
 
 router.get("/get/:productId", reviewController.getAllReviewByProductId);
+router.get(
+  "/my-shop",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("VENDOR"),
+  reviewController.getUsersShopReview
+);
 router.get("/get-reply/:reviewId", reviewController.getReplyByReviewId);
 
 const reviewRoute = router;

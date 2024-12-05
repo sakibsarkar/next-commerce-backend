@@ -152,7 +152,7 @@ model Order {
 
 model Review {
   id             String          @id @default(uuid())
-  image         String?         @default("")
+  image          String?         @default("")
   description    String
   rating         Int             @default(0)
   userId         String
@@ -164,7 +164,7 @@ model Review {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   hasReply       Boolean         @default(false)
-  ReviewResponse ReviewResponse?
+  reviewResponse ReviewResponse?
 
   @@unique([userId, orderId])
 }

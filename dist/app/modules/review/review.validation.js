@@ -4,6 +4,7 @@ const zod_1 = require("zod");
 const create = zod_1.z.object({
     images: zod_1.z.string().optional(), // Optional field with a default value
     description: zod_1.z.string(),
+    rating: zod_1.z.number().min(1).max(5),
     orderId: zod_1.z.string().uuid(),
 });
 const createReply = zod_1.z.object({

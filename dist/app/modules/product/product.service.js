@@ -53,6 +53,45 @@ const createProduct = (payload, user) => __awaiter(void 0, void 0, void 0, funct
     });
     return product;
 });
+const duplicateProduct = (productId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const product = yield prisma_1.default.product.findUnique({
+        where: { id: productId },
+        include: {
+            colors: true,
+            shopInfo: true,
+        },
+    });
+    if (!product) {
+        throw new AppError_1.default(404, "Product not found");
+    }
+    if (product.shopInfo.ownerId !== userId) {
+        throw new AppError_1.default(403, "You are not authorized to duplicate this product");
+    }
+    const newProduct = yield prisma_1.default.product.create({
+        data: {
+            name: product.name,
+            price: product.price,
+            discount: product.discount,
+            tag: product.tag,
+            description: product.description,
+            images: product.images,
+            categoryId: product.categoryId,
+            shopId: product.shopId,
+            colors: {
+                create: product.colors.map((color) => ({
+                    color: color.color,
+                    sizes: {
+                        create: color.sizes.map((size) => ({
+                            size: size.size,
+                            quantity: size.quantity,
+                        })),
+                    },
+                })),
+            },
+        },
+    });
+    return newProduct;
+});
 const updateProduct = (payload, productId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const product = yield prisma_1.default.product.findUnique({
         where: { id: productId },
@@ -62,10 +101,10 @@ const updateProduct = (payload, productId, userId) => __awaiter(void 0, void 0, 
         },
     });
     if (!product) {
-        throw new Error("Product not found");
+        throw new AppError_1.default(404, "Product not found");
     }
     if (product.shopInfo.ownerId !== userId) {
-        throw new Error("You are not authorized to update this product");
+        throw new AppError_1.default(403, "You are not authorized to update this product");
     }
     // Construct the data to update
     const updateData = {
@@ -119,11 +158,11 @@ const removeColor = (colorId, userId) => __awaiter(void 0, void 0, void 0, funct
         include: { product: { include: { shopInfo: true } } },
     });
     if (!color) {
-        throw new Error("Color not found");
+        throw new AppError_1.default(404, "Color not found");
     }
     // Check authorization
     if (color.product.shopInfo.ownerId !== userId) {
-        throw new Error("You are not authorized to remove this color");
+        throw new AppError_1.default(404, "You are not authorized to remove this color");
     }
     // Delete the color (and cascade delete associated sizes)
     yield prisma_1.default.color.delete({
@@ -139,11 +178,11 @@ const removeSize = (sizeId, userId) => __awaiter(void 0, void 0, void 0, functio
         },
     });
     if (!size) {
-        throw new Error("Size not found");
+        throw new AppError_1.default(404, "Size not found");
     }
     // Check authorization
     if (size.color.product.shopInfo.ownerId !== userId) {
-        throw new Error("You are not authorized to remove this size");
+        throw new AppError_1.default(404, "You are not authorized to remove this size");
     }
     // Delete the size
     yield prisma_1.default.size.delete({
@@ -157,10 +196,10 @@ const deleteProductById = (productId, userId) => __awaiter(void 0, void 0, void 
         include: { shopInfo: true },
     });
     if (!product) {
-        throw new Error("Product not found");
+        throw new AppError_1.default(404, "Product not found");
     }
     if (product.shopInfo.ownerId !== userId) {
-        throw new Error("You are not authorized to delete this product");
+        throw new AppError_1.default(403, "You are not authorized to delete this product");
     }
     yield prisma_1.default.product.update({
         where: { id: productId },
@@ -171,7 +210,8 @@ const deleteProductById = (productId, userId) => __awaiter(void 0, void 0, void 
 const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const maxPrice = query.maxPrice ? Number(query.maxPrice) : undefined;
     const minPrice = query.minPrice ? Number(query.minPrice) : undefined;
-    const explodedQueryParams = ["minPrice", "maxPrice"];
+    const categories = query.categories ? query.categories.split(",") : undefined;
+    const explodedQueryParams = ["minPrice", "maxPrice", "categories"];
     explodedQueryParams.forEach((key) => delete query[key]);
     let findQuery = {
         isDeleted: false,
@@ -182,6 +222,9 @@ const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* ()
     if (minPrice) {
         findQuery = Object.assign(Object.assign({}, findQuery), { price: { gte: minPrice } });
     }
+    if (categories) {
+        findQuery = Object.assign(Object.assign({}, findQuery), { categoryId: { in: categories } });
+    }
     const queryBuilder = new QueryBuilder_1.default(query)
         .paginate()
         .filter()
@@ -191,6 +234,7 @@ const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* ()
     const metaQuery = queryBuilder.getMetaQuery();
     const products = yield prisma_1.default.product.findMany(Object.assign(Object.assign({}, queryResult), { include: {
             shopInfo: true,
+            categoryInfo: true,
             colors: {
                 include: {
                     sizes: true,
@@ -288,5 +332,6 @@ const productService = {
     deleteProductById,
     getRelatedProductsByCategoryId,
     getFollowedShopProducts,
+    duplicateProduct,
 };
 exports.default = productService;

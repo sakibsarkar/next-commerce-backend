@@ -28,6 +28,17 @@ const createProduct = (0, catchAsyncError_1.default)((req, res) => __awaiter(voi
         data: product,
     });
 }));
+const duplicateProduct = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { productId } = req.params;
+    const product = yield product_service_1.default.duplicateProduct(productId, user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 201,
+        message: "Product duplicated successfully",
+        data: product,
+    });
+}));
 const updateProduct = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const body = req.body || {};
@@ -120,6 +131,7 @@ const getFollowedShopProducts = (0, catchAsyncError_1.default)((req, res) => __a
 }));
 exports.productController = {
     createProduct,
+    duplicateProduct,
     updateProduct,
     getProducts,
     getProductDetailsById,

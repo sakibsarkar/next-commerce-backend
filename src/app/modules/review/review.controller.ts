@@ -35,6 +35,23 @@ const getAllReviewByProductId = catchAsyncError(async (req, res) => {
   });
 });
 
+const getUsersShopReview = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+
+  const { meta, reviews } = await reviewService.getUsersShopReviews(
+    user.id,
+    req.query
+  );
+
+  sendResponse(res, {
+    success: true,
+    data: reviews,
+    meta: meta,
+    statusCode: 200,
+    message: "Reviews fetched successfully",
+  });
+});
+
 const getReplyByReviewId = catchAsyncError(async (req, res) => {
   const { reviewId } = req.params;
 
@@ -65,6 +82,7 @@ const reviewController = {
   getAllReviewByProductId,
   getReplyByReviewId,
   createReply,
+  getUsersShopReview,
 };
 
 export default reviewController;

@@ -32,16 +32,41 @@ const createReview = (payload, userId) => __awaiter(void 0, void 0, void 0, func
     if (isReviewExist) {
         throw new AppError_1.default(400, "Review already exists for this order");
     }
-    const review = yield prisma_1.default.review.create({
-        data: {
-            images: payload.images,
-            description: payload.description,
-            orderId: payload.orderId,
-            userId: userId,
-            productId: isOrderExist.productId,
-        },
-    });
-    return review;
+    const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        const review = yield tx.review.create({
+            data: {
+                image: payload.images,
+                description: payload.description,
+                orderId: payload.orderId,
+                userId: userId,
+                productId: isOrderExist.productId,
+            },
+        });
+        const avgRating = yield tx.review.aggregate({
+            where: { productId: isOrderExist.productId },
+            _avg: {
+                rating: true,
+            },
+        });
+        yield tx.product.update({
+            where: {
+                id: isOrderExist.productId,
+            },
+            data: {
+                avgRating: avgRating._avg.rating || 0,
+            },
+        });
+        yield tx.order.update({
+            where: {
+                id: payload.orderId,
+            },
+            data: {
+                hasReviewGiven: true,
+            },
+        });
+        return review;
+    }));
+    return result;
 });
 const getAllReviewByProductId = (productId, query) => __awaiter(void 0, void 0, void 0, function* () {
     const isProductExist = yield prisma_1.default.product.findUnique({
@@ -129,10 +154,66 @@ const createReply = (payload, userId) => __awaiter(void 0, void 0, void 0, funct
     }));
     return result;
 });
+const getUsersShopReviews = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = Number(query.page || 1);
+    const limit = Number(query.limit || 10);
+    const skip = (page - 1) * limit;
+    const take = limit;
+    const shop = yield prisma_1.default.shop.findUnique({
+        where: {
+            ownerId: userId,
+        },
+        select: {
+            id: true,
+        },
+    });
+    if (!shop) {
+        throw new AppError_1.default(404, "Shop not found");
+    }
+    const reviews = yield prisma_1.default.review.findMany({
+        where: {
+            productInfo: {
+                shopId: shop === null || shop === void 0 ? void 0 : shop.id,
+            },
+        },
+        include: {
+            userInfo: true,
+            reviewResponse: true,
+            productInfo: {
+                select: {
+                    id: true,
+                    name: true,
+                    images: true,
+                },
+            },
+        },
+        skip,
+        take,
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    const totalReviews = yield prisma_1.default.review.count({
+        where: {
+            productInfo: {
+                shopId: shop.id,
+            },
+        },
+    });
+    return {
+        reviews,
+        meta: {
+            currentPage: page,
+            limit,
+            totalDoc: totalReviews,
+        },
+    };
+});
 const reviewService = {
     createReview,
     getAllReviewByProductId,
     getReplyByReviewId,
     createReply,
+    getUsersShopReviews,
 };
 exports.default = reviewService;

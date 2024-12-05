@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const zod_1 = require("zod");
 const create = zod_1.z.object({
-    paymentMethodId: zod_1.z.string(),
+    paymentIntentId: zod_1.z.string(),
     shippingAddressId: zod_1.z.string(),
     orderItems: zod_1.z.array(zod_1.z
         .object({

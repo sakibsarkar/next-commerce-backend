@@ -35,7 +35,15 @@ const updateShop = (userId, payload) => __awaiter(void 0, void 0, void 0, functi
         },
     });
     if (!shop) {
-        throw new AppError_1.default(404, "Shop not found");
+        const result = yield prisma_1.default.shop.create({
+            data: {
+                logo: payload.logo || "",
+                name: payload.name || "",
+                description: payload.description || "",
+                ownerId: userId,
+            },
+        });
+        return result;
     }
     const updatedShop = yield prisma_1.default.shop.update({
         where: {
@@ -51,7 +59,12 @@ const getShopByUser = (userId) => __awaiter(void 0, void 0, void 0, function* ()
             ownerId: userId,
         },
     });
-    return shop;
+    const followerCount = yield prisma_1.default.shopFollower.count({
+        where: {
+            shopId: (shop === null || shop === void 0 ? void 0 : shop.id) || "",
+        },
+    });
+    return Object.assign(Object.assign({}, shop), { followerCount });
 });
 const toggleFollowAShop = (shopId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const isExistShop = yield prisma_1.default.shop.findUnique({
@@ -75,7 +88,13 @@ const toggleFollowAShop = (shopId, userId) => __awaiter(void 0, void 0, void 0, 
         },
     });
     if (isAlreadyFollowing) {
-        throw new AppError_1.default(400, "You are already following this shop");
+        const result = yield prisma_1.default.shopFollower.deleteMany({
+            where: {
+                userId: userId,
+                shopId: shopId,
+            },
+        });
+        return result;
     }
     const follower = yield prisma_1.default.shopFollower.create({
         data: {
@@ -111,6 +130,34 @@ const getShopFollowerCount = (shopId, userId) => __awaiter(void 0, void 0, void 
         isFollowing: Boolean(isFollowing),
     };
 });
+const getSopInformationByShopId = (shopId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const shop = yield prisma_1.default.shop.findUnique({
+        where: {
+            id: shopId,
+        },
+    });
+    if (!shop) {
+        throw new AppError_1.default(404, "Shop not found");
+    }
+    const isFollowing = yield prisma_1.default.shopFollower.findFirst({
+        where: {
+            userId: userId,
+            shopId: shopId,
+        },
+    });
+    const followerCount = yield prisma_1.default.shopFollower.count({
+        where: {
+            shopId: shopId,
+        },
+    });
+    const totalProduct = yield prisma_1.default.product.count({
+        where: {
+            shopId: shopId,
+        },
+    });
+    return Object.assign(Object.assign({}, shop), { followerCount,
+        totalProduct, isFollowing: Boolean(isFollowing) });
+});
 const shopService = {
     createShop,
     getShopByUser,
@@ -118,5 +165,6 @@ const shopService = {
     toggleFollowAShop,
     isShopFollowedByUser,
     getShopFollowerCount,
+    getSopInformationByShopId,
 };
 exports.default = shopService;

@@ -82,6 +82,17 @@ const getShopFollowerCount = (0, catchAsyncError_1.default)((req, res) => __awai
         data: followerCount,
     });
 }));
+const getSopInformationByShopId = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { shopId } = req.params;
+    const user = req.user;
+    const shop = yield shop_service_1.default.getSopInformationByShopId(shopId, user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Shop information retrieved successfully",
+        data: shop,
+    });
+}));
 const shopController = {
     createShop,
     getShopByUser,
@@ -89,5 +100,6 @@ const shopController = {
     toggleFollowAShop,
     isShopFollowedByUser,
     getShopFollowerCount,
+    getSopInformationByShopId,
 };
 exports.default = shopController;
