@@ -102,6 +102,26 @@ const getProducts = catchAsyncError(async (req, res) => {
   });
 });
 
+const getUsersShopProducts = catchAsyncError(async (req, res) => {
+  const user = req.user!;
+  const { metaQuery, result } = await productService.getUsersShopProducts(
+    user.id,
+    req.query
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Products retrieved successfully",
+    data: result,
+    meta: {
+      limit: metaQuery.limit,
+      currentPage: metaQuery.page,
+      totalDoc: metaQuery.totalCount,
+    },
+  });
+});
+
 const getProductDetailsById = catchAsyncError(async (req, res) => {
   const { id } = req.params;
 
@@ -161,4 +181,5 @@ export const productController = {
   deleteProductById,
   getRelatedProductsByCategoryId,
   getFollowedShopProducts,
+  getUsersShopProducts,
 };

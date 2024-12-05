@@ -50,6 +50,11 @@ router.delete(
 router.get("/get", productController.getProducts);
 router.get("/get/:id", productController.getProductDetailsById);
 router.get(
+  "/my-shop",
+  authMiddleWere.isAuthenticateUser,
+  productController.getUsersShopProducts
+);
+router.get(
   "/get-related/:categoryId",
   productController.getRelatedProductsByCategoryId
 );

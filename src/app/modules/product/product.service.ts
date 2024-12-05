@@ -48,7 +48,11 @@ const duplicateProduct = async (productId: string, userId: string) => {
   const product = await prisma.product.findUnique({
     where: { id: productId },
     include: {
-      colors: true,
+      colors: {
+        include: {
+          sizes: true,
+        },
+      },
       shopInfo: true,
     },
   });
@@ -297,6 +301,55 @@ const getProductDetailsById = async (id: string) => {
   return product;
 };
 
+const getUsersShopProducts = async (
+  userId: string,
+  query: Record<string, any>
+) => {
+  const page = Number(query.page || 1);
+  const limit = Number(query.limit || 10);
+  const result = await prisma.product.findMany({
+    where: {
+      shopInfo: {
+        ownerId: userId,
+      },
+      isDeleted: false,
+    },
+    select: {
+      id: true,
+      name: true,
+      avgRating: true,
+      categoryId: true,
+      categoryInfo: true,
+      price: true,
+      createdAt: true,
+      discount: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+  const totalCount = await prisma.product.count({
+    where: {
+      shopInfo: {
+        ownerId: userId,
+      },
+      isDeleted: false,
+    },
+  });
+
+  const metaQuery = {
+    page,
+    limit,
+    totalCount,
+  };
+
+  return { result, metaQuery };
+};
+
 const getRelatedProductsByCategoryId = async (categoryId: string) => {
   const limit = 10;
   const relatedProducts = await prisma.product.findMany({
@@ -375,6 +428,7 @@ const productService = {
   getRelatedProductsByCategoryId,
   getFollowedShopProducts,
   duplicateProduct,
+  getUsersShopProducts,
 };
 
 export default productService;

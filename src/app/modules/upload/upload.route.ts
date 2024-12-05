@@ -5,10 +5,15 @@ import UploadController from "./upload.controller";
 const router = Router();
 router.post(
   "/single",
-  multerUpload.single("file"),
   authMiddleWere.isAuthenticateUser,
+  multerUpload.single("file"),
   UploadController.uploadSingleFile
 );
-
+router.post(
+  "/multiple",
+  authMiddleWere.isAuthenticateUser,
+  multerUpload.array("images"),
+  UploadController.uploadMutilpleFile
+);
 const uploadRoute = router;
 export default uploadRoute;
