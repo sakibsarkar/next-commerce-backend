@@ -124,33 +124,33 @@ const updateProduct = async (
     images: payload.images,
     categoryId: payload.categoryId,
     isSale: payload.isSale,
-    colors: {
-      upsert: payload.colors.map((color: any) => ({
-        where: { id: color.id },
-        update: {
-          color: color.color,
-          sizes: {
-            upsert: color.sizes.map((size: any) => ({
-              where: { id: size.id },
-              update: { quantity: size.quantity },
-              create: {
-                size: size.size,
-                quantity: size.quantity,
-              },
-            })),
-          },
-        },
-        create: {
-          color: color.color,
-          sizes: {
-            create: color.sizes.map((size: any) => ({
-              size: size.size,
-              quantity: size.quantity,
-            })),
-          },
-        },
-      })),
-    },
+    // colors: {
+    //   upsert: payload.colors.map((color: any) => ({
+    //     where: { id: color.id },
+    //     update: {
+    //       color: color.color,
+    //       sizes: {
+    //         upsert: color.sizes.map((size: any) => ({
+    //           where: { id: size.id },
+    //           update: { quantity: size.quantity },
+    //           create: {
+    //             size: size.size,
+    //             quantity: size.quantity,
+    //           },
+    //         })),
+    //       },
+    //     },
+    //     create: {
+    //       color: color.color,
+    //       sizes: {
+    //         create: color.sizes.map((size: any) => ({
+    //           size: size.size,
+    //           quantity: size.quantity,
+    //         })),
+    //       },
+    //     },
+    //   })),
+    // },
   };
 
   // Update the product in the database
@@ -295,6 +295,7 @@ const getProductDetailsById = async (id: string) => {
           sizes: true,
         },
       },
+      categoryInfo: true,
       shopInfo: true,
     },
   });

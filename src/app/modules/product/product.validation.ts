@@ -30,17 +30,12 @@ const create = z
 const update = z.object({
   name: z.string().min(1, "Product name is required").optional(),
   price: z.number().min(0, "Price must be at least 0").optional(),
-  stock: z.number().optional().default(0),
   discount: z.number().optional().default(0),
   tag: z.string().optional().default(""), // Optional
   description: z.string().optional(),
   images: z
     .array(z.string().url("Each image must be a valid URL"))
     .nonempty("At least one image is required")
-    .optional(),
-  colors: z
-    .array(colorSchema)
-    .nonempty("At least one color is required")
     .optional(),
   categoryId: z.string().optional(),
 });
