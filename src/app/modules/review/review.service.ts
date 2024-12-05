@@ -20,17 +20,46 @@ const createReview = async (payload: IReview, userId: string) => {
   if (isReviewExist) {
     throw new AppError(400, "Review already exists for this order");
   }
-  const review = await prisma.review.create({
-    data: {
-      images: payload.images,
-      description: payload.description,
-      orderId: payload.orderId,
-      userId: userId,
-      productId: isOrderExist.productId,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    const review = await tx.review.create({
+      data: {
+        images: payload.images,
+        description: payload.description,
+        orderId: payload.orderId,
+        userId: userId,
+        productId: isOrderExist.productId,
+      },
+    });
+
+    const avgRating = await tx.review.aggregate({
+      where: { productId: isOrderExist.productId },
+      _avg: {
+        rating: true,
+      },
+    });
+
+    await tx.product.update({
+      where: {
+        id: isOrderExist.productId,
+      },
+      data: {
+        avgRating: avgRating._avg.rating || 0,
+      },
+    });
+
+    await tx.order.update({
+      where: {
+        id: payload.orderId,
+      },
+      data: {
+        hasReviewGiven: true,
+      },
+    });
+
+    return review;
   });
 
-  return review;
+  return result;
 };
 
 const getAllReviewByProductId = async (

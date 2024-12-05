@@ -152,8 +152,9 @@ model Order {
 
 model Review {
   id             String          @id @default(uuid())
-  images         String?         @default("")
+  image         String?         @default("")
   description    String
+  rating         Int             @default(0)
   userId         String
   userInfo       User            @relation(fields: [userId], references: [id])
   orderId        String

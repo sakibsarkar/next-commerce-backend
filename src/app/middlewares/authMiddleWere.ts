@@ -14,13 +14,13 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
   const accessToken = req.cookies?.accessToken;
 
   if (!accessToken) {
-    throw new AppError(403, "Unauthorized");
+    throw new AppError(401, "Unauthorized");
   }
 
   if (!accessToken || isTokenExpired(accessToken)) {
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
-      throw new AppError(404, "Refresh token is missing");
+      throw new AppError(401, "Refresh token is missing");
     }
 
     const decryptedJwt = jwt.verify(
@@ -64,7 +64,7 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
       },
     });
     if (!isExistUsr) {
-      throw new AppError(403, "Unauthorized");
+      throw new AppError(401, "Unauthorized");
     }
 
     const pay = {
@@ -79,7 +79,7 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
   if (accessToken && !isTokenExpired(accessToken)) {
     const payload = authUtils.verifyAccessToken(accessToken);
     if (!payload) {
-      throw new AppError(403, "Unauthorized");
+      throw new AppError(401, "Unauthorized");
     }
     const { id } = payload as { id: string; email: string; role: string };
     const isExistUsr = await prisma.user.findUnique({
@@ -88,7 +88,7 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
       },
     });
     if (!isExistUsr) {
-      throw new AppError(403, "Unauthorized");
+      throw new AppError(401, "Unauthorized");
     }
 
     const pay = {

@@ -6,7 +6,7 @@ import reviewValidationSchema from "./review.validation";
 const router = Router();
 
 router.post(
-  "/crate",
+  "/create",
   authMiddleWere.isAuthenticateUser,
   authMiddleWere.authorizeRoles("CUSTOMER"),
   validSchema(reviewValidationSchema.create),
