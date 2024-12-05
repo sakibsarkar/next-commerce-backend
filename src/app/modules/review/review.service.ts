@@ -23,7 +23,7 @@ const createReview = async (payload: IReview, userId: string) => {
   const result = await prisma.$transaction(async (tx) => {
     const review = await tx.review.create({
       data: {
-        image: payload.images,
+        image: payload.image,
         description: payload.description,
         rating: payload.rating,
         orderId: payload.orderId,
@@ -88,6 +88,11 @@ const getAllReviewByProductId = async (
     take: limit,
     include: {
       userInfo: true,
+      reviewResponse: {
+        include: {
+          shopInfo: true,
+        },
+      },
     },
   });
 

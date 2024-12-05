@@ -6,6 +6,7 @@ const createReview = catchAsyncError(async (req, res) => {
   const user = req.user!;
 
   const body = req.body || {};
+  
   const review = await reviewService.createReview(body, user.id);
 
   sendResponse(res, {

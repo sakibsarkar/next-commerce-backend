@@ -1,5 +1,5 @@
 export interface IReview {
-  images?: string;
+  image?: string;
   description: string;
   rating: number;
   orderId: string;
