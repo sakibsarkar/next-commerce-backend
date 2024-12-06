@@ -9,6 +9,13 @@ router.post(
   categoryController.createCategory
 );
 
+router.patch(
+  "/update/:categoryId",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("ADMIN"),
+  categoryController.updateCategory
+);
+
 router.get("/get", categoryController.getAllCategories);
 
 const categoryRoute = router;

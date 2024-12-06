@@ -32,5 +32,22 @@ const createCategory = (data) => __awaiter(void 0, void 0, void 0, function* () 
     const result = yield prisma_1.default.category.create({ data });
     return result;
 });
-const categoryService = { getAllCategories, createCategory };
+const updateCategory = (data, categoryId) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExist = yield prisma_1.default.category.findUnique({
+        where: {
+            id: categoryId,
+        },
+    });
+    if (!isExist) {
+        throw new Error("Category not found");
+    }
+    const result = yield prisma_1.default.category.update({
+        where: {
+            id: categoryId,
+        },
+        data,
+    });
+    return result;
+});
+const categoryService = { getAllCategories, createCategory, updateCategory };
 exports.default = categoryService;

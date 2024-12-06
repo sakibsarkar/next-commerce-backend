@@ -72,10 +72,13 @@ const signUp = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, vo
 const login = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { body } = req;
     const isExist = yield prisma_1.default.user.findUnique({
-        where: { email: body.email },
+        where: { email: body.email, isDeleted: false },
     });
     if (!isExist) {
         throw new AppError_1.default(403, `User not found with email '${body.email}'`);
+    }
+    if (isExist.isSuspended) {
+        throw new AppError_1.default(403, "Account is suspended");
     }
     const isMatch = bcrypt_1.default.compareSync(body.password, isExist.password);
     if (!isMatch) {
@@ -171,6 +174,8 @@ const author = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, vo
             createdAt: true,
             updatedAt: true,
             image: true,
+            isDeleted: true,
+            isSuspended: true,
         },
     });
     (0, sendResponse_1.default)(res, {
@@ -322,7 +327,7 @@ const forgotPassword = (0, catchAsyncError_1.default)((req, res) => __awaiter(vo
             passwordResetExpiry: expiry,
         },
     });
-    const url = `${config_1.default.FRONTEND_URL}/reset-password/${token}`;
+    const url = `${config_1.default.FRONTEND_URL}/recover-password/${token}`;
     const subject = "Account Password Reset Requested";
     const emailContent = `
       <p style="text-align: center;">
@@ -331,22 +336,17 @@ const forgotPassword = (0, catchAsyncError_1.default)((req, res) => __awaiter(vo
       </p>
       <a href="${url}" style="text-align: center; display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
   `;
-    try {
-        yield (0, sendMessage_1.default)({
-            html: emailContent,
-            receiverMail: user.email,
-            subject,
-        });
-        (0, sendResponse_1.default)(res, {
-            success: true,
-            statusCode: 200,
-            data: null,
-            message: "Password reset email sent successfully",
-        });
-    }
-    catch (_b) {
-        throw new AppError_1.default(500, "Error sending password reset email");
-    }
+    yield (0, sendMessage_1.default)({
+        html: emailContent,
+        receiverMail: user.email,
+        subject,
+    });
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        data: null,
+        message: "Password reset email sent successfully",
+    });
 }));
 const resetPassword = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { password: newPassword, token } = req.body;

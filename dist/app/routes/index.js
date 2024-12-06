@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const admin_route_1 = __importDefault(require("../modules/admin/admin.route"));
 const auth_route_1 = __importDefault(require("../modules/auth/auth.route"));
 const category_route_1 = __importDefault(require("../modules/category/category.route"));
 const mock_controller_1 = __importDefault(require("../modules/mock.controller"));
@@ -51,6 +52,10 @@ const moduleRoute = [
     {
         path: "/upload",
         route: upload_route_1.default,
+    },
+    {
+        path: "/admin",
+        route: admin_route_1.default,
     },
     {
         path: "/mock",

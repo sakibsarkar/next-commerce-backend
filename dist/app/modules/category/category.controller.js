@@ -39,5 +39,16 @@ const getAllCategories = (0, catchAsyncError_1.default)((req, res) => __awaiter(
         data: result,
     });
 }));
-const categoryController = { createCategory, getAllCategories };
+const updateCategory = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = req.body;
+    const { categoryId } = req.params;
+    const result = yield category_service_1.default.updateCategory(payload, categoryId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Category updated successfully",
+        data: result,
+    });
+}));
+const categoryController = { createCategory, getAllCategories, updateCategory };
 exports.default = categoryController;

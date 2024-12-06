@@ -57,7 +57,11 @@ const duplicateProduct = (productId, userId) => __awaiter(void 0, void 0, void 0
     const product = yield prisma_1.default.product.findUnique({
         where: { id: productId },
         include: {
-            colors: true,
+            colors: {
+                include: {
+                    sizes: true,
+                },
+            },
             shopInfo: true,
         },
     });
@@ -117,33 +121,33 @@ const updateProduct = (payload, productId, userId) => __awaiter(void 0, void 0, 
         images: payload.images,
         categoryId: payload.categoryId,
         isSale: payload.isSale,
-        colors: {
-            upsert: payload.colors.map((color) => ({
-                where: { id: color.id },
-                update: {
-                    color: color.color,
-                    sizes: {
-                        upsert: color.sizes.map((size) => ({
-                            where: { id: size.id },
-                            update: { quantity: size.quantity },
-                            create: {
-                                size: size.size,
-                                quantity: size.quantity,
-                            },
-                        })),
-                    },
-                },
-                create: {
-                    color: color.color,
-                    sizes: {
-                        create: color.sizes.map((size) => ({
-                            size: size.size,
-                            quantity: size.quantity,
-                        })),
-                    },
-                },
-            })),
-        },
+        // colors: {
+        //   upsert: payload.colors.map((color: any) => ({
+        //     where: { id: color.id },
+        //     update: {
+        //       color: color.color,
+        //       sizes: {
+        //         upsert: color.sizes.map((size: any) => ({
+        //           where: { id: size.id },
+        //           update: { quantity: size.quantity },
+        //           create: {
+        //             size: size.size,
+        //             quantity: size.quantity,
+        //           },
+        //         })),
+        //       },
+        //     },
+        //     create: {
+        //       color: color.color,
+        //       sizes: {
+        //         create: color.sizes.map((size: any) => ({
+        //           size: size.size,
+        //           quantity: size.quantity,
+        //         })),
+        //       },
+        //     },
+        //   })),
+        // },
     };
     // Update the product in the database
     const updatedProduct = yield prisma_1.default.product.update({
@@ -258,10 +262,70 @@ const getProductDetailsById = (id) => __awaiter(void 0, void 0, void 0, function
                     sizes: true,
                 },
             },
+            categoryInfo: true,
             shopInfo: true,
         },
     });
     return product;
+});
+const getProductsByIds = (ids) => __awaiter(void 0, void 0, void 0, function* () {
+    const products = yield prisma_1.default.product.findMany({
+        where: {
+            id: { in: ids },
+            isDeleted: false,
+        },
+        include: {
+            shopInfo: true,
+            categoryInfo: true,
+            colors: {
+                include: {
+                    sizes: true,
+                },
+            },
+        },
+    });
+    return products;
+});
+const getUsersShopProducts = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = Number(query.page || 1);
+    const limit = Number(query.limit || 10);
+    const result = yield prisma_1.default.product.findMany({
+        where: {
+            shopInfo: {
+                ownerId: userId,
+            },
+            isDeleted: false,
+        },
+        select: {
+            id: true,
+            name: true,
+            avgRating: true,
+            categoryId: true,
+            categoryInfo: true,
+            price: true,
+            createdAt: true,
+            discount: true,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+    });
+    const totalCount = yield prisma_1.default.product.count({
+        where: {
+            shopInfo: {
+                ownerId: userId,
+            },
+            isDeleted: false,
+        },
+    });
+    const metaQuery = {
+        page,
+        limit,
+        totalCount,
+    };
+    return { result, metaQuery };
 });
 const getRelatedProductsByCategoryId = (categoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const limit = 10;
@@ -333,5 +397,7 @@ const productService = {
     getRelatedProductsByCategoryId,
     getFollowedShopProducts,
     duplicateProduct,
+    getUsersShopProducts,
+    getProductsByIds,
 };
 exports.default = productService;

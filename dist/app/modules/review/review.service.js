@@ -35,25 +35,12 @@ const createReview = (payload, userId) => __awaiter(void 0, void 0, void 0, func
     const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
         const review = yield tx.review.create({
             data: {
-                image: payload.images,
+                image: payload.image,
                 description: payload.description,
+                rating: payload.rating,
                 orderId: payload.orderId,
                 userId: userId,
                 productId: isOrderExist.productId,
-            },
-        });
-        const avgRating = yield tx.review.aggregate({
-            where: { productId: isOrderExist.productId },
-            _avg: {
-                rating: true,
-            },
-        });
-        yield tx.product.update({
-            where: {
-                id: isOrderExist.productId,
-            },
-            data: {
-                avgRating: avgRating._avg.rating || 0,
             },
         });
         yield tx.order.update({
@@ -66,6 +53,20 @@ const createReview = (payload, userId) => __awaiter(void 0, void 0, void 0, func
         });
         return review;
     }));
+    const avgRating = yield prisma_1.default.review.aggregate({
+        where: { productId: isOrderExist.productId },
+        _avg: {
+            rating: true,
+        },
+    });
+    yield prisma_1.default.product.update({
+        where: {
+            id: isOrderExist.productId,
+        },
+        data: {
+            avgRating: avgRating._avg.rating || 0,
+        },
+    });
     return result;
 });
 const getAllReviewByProductId = (productId, query) => __awaiter(void 0, void 0, void 0, function* () {
@@ -88,6 +89,11 @@ const getAllReviewByProductId = (productId, query) => __awaiter(void 0, void 0, 
         take: limit,
         include: {
             userInfo: true,
+            reviewResponse: {
+                include: {
+                    shopInfo: true,
+                },
+            },
         },
     });
     const totalCount = yield prisma_1.default.review.count({

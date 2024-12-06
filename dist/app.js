@@ -24,7 +24,7 @@ const not_found_1 = require("./app/middlewares/not-found");
 const app = (0, express_1.default)();
 // Middlewares
 app.use((0, cors_1.default)({
-    origin: [config_1.default.FRONTEND_URL],
+    origin: [config_1.default.FRONTEND_URL, "http://localhost:3000"],
     credentials: true,
 }));
 app.use(express_1.default.json());

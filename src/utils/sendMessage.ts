@@ -7,6 +7,8 @@ interface IEmail {
 }
 
 const sendMessage = async ({ html, receiverMail, subject }: IEmail) => {
+  console.log(process.env.MAIL, process.env.MAILPASS);
+
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,

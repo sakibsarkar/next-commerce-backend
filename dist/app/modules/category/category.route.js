@@ -8,6 +8,7 @@ const authMiddleWere_1 = __importDefault(require("../../middlewares/authMiddleWe
 const category_controller_1 = __importDefault(require("./category.controller"));
 const router = (0, express_1.Router)();
 router.post("/create", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), category_controller_1.default.createCategory);
+router.patch("/update/:categoryId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), category_controller_1.default.updateCategory);
 router.get("/get", category_controller_1.default.getAllCategories);
 const categoryRoute = router;
 exports.default = categoryRoute;

@@ -48,9 +48,20 @@ const getVendorOrders = (0, catchAsyncError_1.default)((req, res) => __awaiter(v
         meta: Object.assign(Object.assign({}, metaQuery), { totalDoc: totalCount }),
     });
 }));
+const moveOrderForShipment = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { orderId } = req.params;
+    const user = req.user;
+    const result = yield order_service_1.default.moveOrderForShipment(orderId, user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        data: result,
+        message: "Order moved for shipment successfully",
+    });
+}));
 const orderController = {
     createOrder,
     getUserOrders,
     getVendorOrders,
+    moveOrderForShipment,
 };
 exports.default = orderController;

@@ -389,7 +389,7 @@ const forgotPassword = catchAsyncError(async (req, res) => {
     },
   });
 
-  const url = `${Config.FRONTEND_URL}/reset-password/${token}`;
+  const url = `${Config.FRONTEND_URL}/recover-password/${token}`;
   const subject = "Account Password Reset Requested";
   const emailContent = `
       <p style="text-align: center;">
@@ -399,22 +399,18 @@ const forgotPassword = catchAsyncError(async (req, res) => {
       <a href="${url}" style="text-align: center; display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
   `;
 
-  try {
-    await sendMessage({
-      html: emailContent,
-      receiverMail: user.email,
-      subject,
-    });
+  await sendMessage({
+    html: emailContent,
+    receiverMail: user.email,
+    subject,
+  });
 
-    sendResponse(res, {
-      success: true,
-      statusCode: 200,
-      data: null,
-      message: "Password reset email sent successfully",
-    });
-  } catch {
-    throw new AppError(500, "Error sending password reset email");
-  }
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    data: null,
+    message: "Password reset email sent successfully",
+  });
 });
 
 const resetPassword = catchAsyncError(async (req, res) => {

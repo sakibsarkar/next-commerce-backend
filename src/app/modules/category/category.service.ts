@@ -22,6 +22,25 @@ const createCategory = async (data: { label: string }) => {
   const result = await prisma.category.create({ data });
   return result;
 };
+const updateCategory = async (data: { label: string }, categoryId: string) => {
+  const isExist = await prisma.category.findUnique({
+    where: {
+      id: categoryId,
+    },
+  });
 
-const categoryService = { getAllCategories, createCategory };
+  if (!isExist) {
+    throw new Error("Category not found");
+  }
+
+  const result = await prisma.category.update({
+    where: {
+      id: categoryId,
+    },
+    data,
+  });
+  return result;
+};
+
+const categoryService = { getAllCategories, createCategory, updateCategory };
 export default categoryService;

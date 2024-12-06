@@ -18,7 +18,7 @@ router.patch("/update-profile", (0, validator_1.validSchema)(auth_validation_1.d
 router.put("/update-profile-image", authMiddleWere_1.default.isAuthenticateUser, cloudinaryMulter_config_1.multerUpload.single("file"), auth_controller_1.default.updateUserProfileImage);
 router.post("/refresh-token", auth_controller_1.default.refreshToken);
 router.post("/forgot-password", auth_controller_1.default.forgotPassword);
-router.post("/reset-password", auth_controller_1.default.resetPassword);
+router.put("/reset-password", auth_controller_1.default.resetPassword);
 router.put("/change-password", authMiddleWere_1.default.isAuthenticateUser, auth_controller_1.default.changePassword);
 const authRoute = router;
 exports.default = authRoute;

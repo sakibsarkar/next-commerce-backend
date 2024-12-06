@@ -29,17 +29,12 @@ const create = zod_1.z
 const update = zod_1.z.object({
     name: zod_1.z.string().min(1, "Product name is required").optional(),
     price: zod_1.z.number().min(0, "Price must be at least 0").optional(),
-    stock: zod_1.z.number().optional().default(0),
     discount: zod_1.z.number().optional().default(0),
     tag: zod_1.z.string().optional().default(""), // Optional
     description: zod_1.z.string().optional(),
     images: zod_1.z
         .array(zod_1.z.string().url("Each image must be a valid URL"))
         .nonempty("At least one image is required")
-        .optional(),
-    colors: zod_1.z
-        .array(colorSchema)
-        .nonempty("At least one color is required")
         .optional(),
     categoryId: zod_1.z.string().optional(),
 });

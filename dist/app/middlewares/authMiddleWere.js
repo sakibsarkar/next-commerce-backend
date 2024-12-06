@@ -35,8 +35,15 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
         const result = yield prisma_1.default.user.findUnique({
             where: {
                 id: decryptedJwt.id,
+                isDeleted: false,
             },
         });
+        if (!result) {
+            throw new AppError_1.default(401, "Unauthorized");
+        }
+        if (result.isSuspended) {
+            throw new AppError_1.default(401, "Account is suspended");
+        }
         const newAccessToken = auth_utils_1.default.generateAccessToken({
             id: (result === null || result === void 0 ? void 0 : result.id) || "",
             email: (result === null || result === void 0 ? void 0 : result.email) || "",
@@ -59,10 +66,14 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
         const isExistUsr = yield prisma_1.default.user.findUnique({
             where: {
                 id: decryptedJwt.id,
+                isDeleted: false,
             },
         });
         if (!isExistUsr) {
             throw new AppError_1.default(401, "Unauthorized");
+        }
+        if (isExistUsr.isSuspended) {
+            throw new AppError_1.default(401, "Account is suspended");
         }
         const pay = {
             id: isExistUsr.id,
@@ -80,10 +91,14 @@ const isAuthenticateUser = (0, catchAsyncError_1.default)((req, res, next) => __
         const isExistUsr = yield prisma_1.default.user.findUnique({
             where: {
                 id,
+                isDeleted: false,
             },
         });
         if (!isExistUsr) {
             throw new AppError_1.default(401, "Unauthorized");
+        }
+        if (isExistUsr.isSuspended) {
+            throw new AppError_1.default(401, "Account is suspended");
         }
         const pay = {
             id: isExistUsr.id,

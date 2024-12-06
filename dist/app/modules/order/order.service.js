@@ -129,7 +129,7 @@ const getVendorOders = (userId, query) => __awaiter(void 0, void 0, void 0, func
     });
     const orders = yield prisma_1.default.order.findMany(Object.assign(Object.assign({}, queryResult), { include: {
             userInfo: true,
-            shopInfo: true,
+            shippingInfo: true,
             productInfo: {
                 select: {
                     id: true,
@@ -145,9 +145,27 @@ const getVendorOders = (userId, query) => __awaiter(void 0, void 0, void 0, func
         metaQuery,
     };
 });
+const moveOrderForShipment = (orderId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const order = yield prisma_1.default.order.findUnique({
+        where: { id: orderId },
+        include: { shopInfo: true },
+    });
+    if (!order) {
+        throw new AppError_1.default(404, "Order not found");
+    }
+    if (order.shopInfo.ownerId !== userId) {
+        throw new AppError_1.default(403, "You are not authorized to move this Order");
+    }
+    const result = yield prisma_1.default.order.update({
+        where: { id: orderId },
+        data: { status: "ON_SHIPMENT" },
+    });
+    return result;
+});
 const orderService = {
     createOrder,
     getUserOrders,
     getVendorOders,
+    moveOrderForShipment,
 };
 exports.default = orderService;

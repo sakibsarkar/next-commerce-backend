@@ -40,7 +40,27 @@ const uploadSingleFile = (0, catchAsyncError_1.default)((req, res) => __awaiter(
         statusCode: 200,
     });
 }));
+const uploadMutilpleFile = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const files = req.files;
+    if (!files) {
+        (0, sendResponse_1.default)(res, {
+            data: null,
+            success: false,
+            message: "File not found",
+        });
+        return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const urls = files.map((file) => file.path);
+    (0, sendResponse_1.default)(res, {
+        data: urls,
+        success: true,
+        message: "File uploaded successfully",
+        statusCode: 200,
+    });
+}));
 const UploadController = {
     uploadSingleFile,
+    uploadMutilpleFile,
 };
 exports.default = UploadController;

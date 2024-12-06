@@ -95,6 +95,31 @@ const getProducts = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 
         meta: Object.assign(Object.assign({}, metaQuery), { totalDoc: totalCount }),
     });
 }));
+const getProductsByIds = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ids } = req.body;
+    const products = yield product_service_1.default.getProductsByIds(ids);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Products retrieved successfully",
+        data: products,
+    });
+}));
+const getUsersShopProducts = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { metaQuery, result } = yield product_service_1.default.getUsersShopProducts(user.id, req.query);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Products retrieved successfully",
+        data: result,
+        meta: {
+            limit: metaQuery.limit,
+            currentPage: metaQuery.page,
+            totalDoc: metaQuery.totalCount,
+        },
+    });
+}));
 const getProductDetailsById = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const product = yield product_service_1.default.getProductDetailsById(id);
@@ -140,4 +165,6 @@ exports.productController = {
     deleteProductById,
     getRelatedProductsByCategoryId,
     getFollowedShopProducts,
+    getUsersShopProducts,
+    getProductsByIds,
 };
