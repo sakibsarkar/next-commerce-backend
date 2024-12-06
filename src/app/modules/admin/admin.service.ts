@@ -73,12 +73,12 @@ const getTransactionHistory = async (query: Record<string, unknown>) => {
   const queryResult = queryBuilder.getPrismaQuery();
   const metaQuery = queryBuilder.getMetaQuery();
 
-  const transactions = await prisma.payment.findMany(queryResult);
+  const result = await prisma.payment.findMany(queryResult);
   const totalCount = await prisma.payment.count({
     where: queryResult.where || {},
   });
 
-  return { transactions, totalCount, metaQuery };
+  return { result, totalCount, metaQuery };
 };
 
 const getSystemOverview = async () => {
@@ -146,6 +146,26 @@ const getMonthlyTransactionOfCurrentYear = async () => {
   return monthlyData;
 };
 
+const getUserAllUserList = async (query: Record<string, unknown>) => {
+  const queryBuilder = new QueryBuilder(query)
+    .paginate()
+    .sort()
+    .filter()
+    .search(["first_name", "last_name", "email"]);
+
+  const queryResult = queryBuilder.getPrismaQuery({
+    isDeleted: false,
+  });
+  const metaQuery = queryBuilder.getMetaQuery();
+
+  const result = await prisma.user.findMany(queryResult);
+  const totalCount = await prisma.user.count({
+    where: queryResult.where || {},
+  });
+
+  return { result, totalCount, metaQuery };
+};
+
 const adminService = {
   toggleUserSuspension,
   deleteUser,
@@ -153,6 +173,7 @@ const adminService = {
   getTransactionHistory,
   getSystemOverview,
   getMonthlyTransactionOfCurrentYear,
+  getUserAllUserList,
 };
 
 export default adminService;

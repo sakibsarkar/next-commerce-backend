@@ -190,6 +190,8 @@ const author = catchAsyncError(async (req, res) => {
       createdAt: true,
       updatedAt: true,
       image: true,
+      isDeleted: true,
+      isSuspended: true,
     },
   });
 

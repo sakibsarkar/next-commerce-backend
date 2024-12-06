@@ -37,12 +37,17 @@ const toggleShopBlackListStatus = catchAsyncError(async (req, res) => {
 
 const getTransactionHistory = catchAsyncError(async (req, res) => {
   const { query } = req;
-  const result = await adminService.getTransactionHistory(query);
+  const { metaQuery, result, totalCount } =
+    await adminService.getTransactionHistory(query);
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Transaction history retrieved successfully",
     data: result,
+    meta: {
+      totalDoc: totalCount,
+      ...metaQuery,
+    },
   });
 });
 
@@ -66,6 +71,22 @@ const getMonthlyTransactionOfCurrentYear = catchAsyncError(async (req, res) => {
   });
 });
 
+const getUserAllUserList = catchAsyncError(async (req, res) => {
+  const { query } = req;
+  const { metaQuery, result, totalCount } =
+    await adminService.getUserAllUserList(query);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "User list retrieved successfully",
+    data: result,
+    meta: {
+      totalDoc: totalCount,
+      ...metaQuery,
+    },
+  });
+});
+
 const adminController = {
   toggleUserSuspension,
   deleteUser,
@@ -73,6 +94,7 @@ const adminController = {
   getTransactionHistory,
   getSystemOverview,
   getMonthlyTransactionOfCurrentYear,
+  getUserAllUserList,
 };
 
 export default adminController;

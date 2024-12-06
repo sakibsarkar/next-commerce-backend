@@ -1,5 +1,5 @@
 import { Router } from "express";
-import adminRoute from "../modules/admin/admiln.route";
+import adminRoute from "../modules/admin/admin.route";
 import authRoute from "../modules/auth/auth.route";
 import categoryRoute from "../modules/category/category.route";
 import mockRoute from "../modules/mock.controller";

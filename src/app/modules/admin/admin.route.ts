@@ -5,13 +5,15 @@ const router = Router();
 router.patch(
   "/toggle-suspension/:userId",
   authMiddleWere.isAuthenticateUser,
-  authMiddleWere.authorizeRoles("ADMIN")
+  authMiddleWere.authorizeRoles("ADMIN"),
+  adminController.toggleUserSuspension
 );
 
 router.delete(
-  "/delete/:userId",
+  "/delete-user/:userId",
   authMiddleWere.isAuthenticateUser,
-  authMiddleWere.authorizeRoles("ADMIN")
+  authMiddleWere.authorizeRoles("ADMIN"),
+  adminController.deleteUser
 );
 
 router.patch(
@@ -40,6 +42,13 @@ router.get(
   authMiddleWere.isAuthenticateUser,
   authMiddleWere.authorizeRoles("ADMIN"),
   adminController.getMonthlyTransactionOfCurrentYear
+);
+
+router.get(
+  "/user-list",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("ADMIN"),
+  adminController.getUserAllUserList
 );
 
 const adminRoute = router;

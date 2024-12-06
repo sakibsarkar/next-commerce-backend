@@ -17,7 +17,7 @@ const adminSeed = async () => {
 
   await prisma.user.create({
     data: {
-      email: "admin@example.com",
+      email: "admin@gmail.com",
       first_name: "admin",
       last_name: "admin",
       role: "ADMIN",
