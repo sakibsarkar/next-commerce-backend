@@ -102,6 +102,17 @@ const getProducts = catchAsyncError(async (req, res) => {
   });
 });
 
+const getProductsByIds = catchAsyncError(async (req, res) => {
+  const { ids } = req.body;
+  const products = await productService.getProductsByIds(ids);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Products retrieved successfully",
+    data: products,
+  });
+});
+
 const getUsersShopProducts = catchAsyncError(async (req, res) => {
   const user = req.user!;
   const { metaQuery, result } = await productService.getUsersShopProducts(
@@ -182,4 +193,5 @@ export const productController = {
   getRelatedProductsByCategoryId,
   getFollowedShopProducts,
   getUsersShopProducts,
+  getProductsByIds,
 };

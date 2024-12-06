@@ -49,6 +49,7 @@ router.delete(
 
 router.get("/get", productController.getProducts);
 router.get("/get/:id", productController.getProductDetailsById);
+router.post("/get-by-ids", productController.getProductsByIds);
 router.get(
   "/my-shop",
   authMiddleWere.isAuthenticateUser,

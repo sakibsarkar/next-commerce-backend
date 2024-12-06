@@ -302,6 +302,25 @@ const getProductDetailsById = async (id: string) => {
   return product;
 };
 
+const getProductsByIds = async (ids: string[]) => {
+  const products = await prisma.product.findMany({
+    where: {
+      id: { in: ids },
+      isDeleted: false,
+    },
+    include: {
+      shopInfo: true,
+      categoryInfo: true,
+      colors: {
+        include: {
+          sizes: true,
+        },
+      },
+    },
+  });
+  return products;
+};
+
 const getUsersShopProducts = async (
   userId: string,
   query: Record<string, any>
@@ -430,6 +449,7 @@ const productService = {
   getFollowedShopProducts,
   duplicateProduct,
   getUsersShopProducts,
+  getProductsByIds,
 };
 
 export default productService;
