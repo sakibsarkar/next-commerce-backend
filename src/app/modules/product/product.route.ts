@@ -66,5 +66,7 @@ router.get(
   productController.getFollowedShopProducts
 );
 
+router.get("/flash-sale", productController.flashSaleProducts);
+
 const productRoute = router;
 export default productRoute;

@@ -386,6 +386,37 @@ const getFollowedShopProducts = (userId, limit) => __awaiter(void 0, void 0, voi
     const shuffledProducts = products.sort(() => 0.5 - Math.random());
     return shuffledProducts;
 });
+const flashSaleProducts = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = Number(query.page || 1);
+    const limit = Number(query.limit || 10);
+    const products = yield prisma_1.default.product.findMany({
+        where: {
+            isDeleted: false,
+            discount: { gt: 0 },
+        },
+        include: {
+            shopInfo: true,
+            categoryInfo: true,
+            colors: {
+                include: {
+                    sizes: true,
+                },
+            },
+        },
+        orderBy: {
+            discount: "desc",
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+    });
+    const totalCount = yield prisma_1.default.product.count({
+        where: {
+            isDeleted: false,
+            discount: { gt: 0 },
+        },
+    });
+    return { products, totalCount };
+});
 const productService = {
     createProduct,
     getAllProducts,
@@ -399,5 +430,6 @@ const productService = {
     duplicateProduct,
     getUsersShopProducts,
     getProductsByIds,
+    flashSaleProducts,
 };
 exports.default = productService;

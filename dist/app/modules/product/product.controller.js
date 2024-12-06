@@ -154,6 +154,18 @@ const getFollowedShopProducts = (0, catchAsyncError_1.default)((req, res) => __a
         data: products,
     });
 }));
+const flashSaleProducts = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { products, totalCount } = yield product_service_1.default.flashSaleProducts(req.query);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Products retrieved successfully",
+        data: products,
+        meta: {
+            totalDoc: totalCount,
+        },
+    });
+}));
 exports.productController = {
     createProduct,
     duplicateProduct,
@@ -167,4 +179,5 @@ exports.productController = {
     getFollowedShopProducts,
     getUsersShopProducts,
     getProductsByIds,
+    flashSaleProducts,
 };

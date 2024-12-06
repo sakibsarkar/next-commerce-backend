@@ -21,5 +21,6 @@ router.post("/get-by-ids", product_controller_1.productController.getProductsByI
 router.get("/my-shop", authMiddleWere_1.default.isAuthenticateUser, product_controller_1.productController.getUsersShopProducts);
 router.get("/get-related/:categoryId", product_controller_1.productController.getRelatedProductsByCategoryId);
 router.get("/shop-follow", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), product_controller_1.productController.getFollowedShopProducts);
+router.get("/flash-sale", product_controller_1.productController.flashSaleProducts);
 const productRoute = router;
 exports.default = productRoute;
