@@ -35,5 +35,12 @@ router.get(
   adminController.getSystemOverview
 );
 
+router.get(
+  "/transaction-data",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("ADMIN"),
+  adminController.getMonthlyTransactionOfCurrentYear
+);
+
 const adminRoute = router;
 export default adminRoute;

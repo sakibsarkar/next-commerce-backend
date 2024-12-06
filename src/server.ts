@@ -1,15 +1,17 @@
 import http from "http";
+import cron from "node-cron";
 import app from "./app";
 import prisma from "./app/config/prisma";
+import adminUtils from "./app/modules/auth/admin.utils";
 import { deleteSuspendedUsers } from "./utils/userSuspension";
 const port = process.env.PORT || 5000;
 const server = http.createServer(app);
 const appServer = server.listen(port);
-import cron from "node-cron";
 
 const startServer = async () => {
   try {
     await prisma.$connect();
+    await adminUtils.adminSeed();
     cron.schedule("0 0 * * *", () => {
       console.log("Running cron job to delete suspended users...");
       deleteSuspendedUsers();

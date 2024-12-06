@@ -72,11 +72,15 @@ const signUp = catchAsyncError(async (req, res) => {
 const login = catchAsyncError(async (req, res) => {
   const { body } = req;
   const isExist = await prisma.user.findUnique({
-    where: { email: body.email },
+    where: { email: body.email, isDeleted: false },
   });
 
   if (!isExist) {
     throw new AppError(403, `User not found with email '${body.email}'`);
+  }
+
+  if (isExist.isSuspended) {
+    throw new AppError(403, "Account is suspended");
   }
 
   const isMatch = bcrypt.compareSync(body.password, isExist.password);

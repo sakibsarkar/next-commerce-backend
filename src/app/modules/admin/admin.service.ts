@@ -118,12 +118,41 @@ const getSystemOverview = async () => {
   };
 };
 
+const getMonthlyTransactionOfCurrentYear = async () => {
+  const currentYear = new Date().getFullYear();
+
+  // Fetch successful transactions grouped by month
+  const transactions = await prisma.payment.groupBy({
+    by: ["status", "createdAt"],
+    where: {
+      status: "SUCCESS",
+      createdAt: {
+        gte: new Date(`${currentYear}-01-01`),
+        lt: new Date(`${currentYear + 1}-01-01`),
+      },
+    },
+    _sum: {
+      amount: true,
+    },
+  });
+
+  // Prepare data grouped by month
+  const monthlyData = Array(12).fill(0); // 12 months initialized to 0
+  transactions.forEach((transaction) => {
+    const month = new Date(transaction.createdAt).getMonth(); // 0-indexed
+    monthlyData[month] += transaction._sum.amount || 0;
+  });
+
+  return monthlyData;
+};
+
 const adminService = {
   toggleUserSuspension,
   deleteUser,
   toggleShopBlackListStatus,
   getTransactionHistory,
   getSystemOverview,
+  getMonthlyTransactionOfCurrentYear,
 };
 
 export default adminService;

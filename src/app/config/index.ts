@@ -14,6 +14,7 @@ const {
   CN_CLOUD_NAME,
   CN_API_KEY,
   CN_API_SECRET,
+  ADMIN_DEFAUL_PASS,
 } = process.env;
 
 const Config = {
@@ -38,6 +39,7 @@ const Config = {
   CN_CLOUD_NAME: CN_CLOUD_NAME,
   CN_API_KEY: CN_API_KEY,
   CN_API_SECRET: CN_API_SECRET,
+  ADMIN_DEFAUL_PASS,
 };
 
 export default Config;

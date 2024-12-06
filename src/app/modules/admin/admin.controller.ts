@@ -56,12 +56,23 @@ const getSystemOverview = catchAsyncError(async (req, res) => {
   });
 });
 
+const getMonthlyTransactionOfCurrentYear = catchAsyncError(async (req, res) => {
+  const result = await adminService.getMonthlyTransactionOfCurrentYear();
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Monthly transaction retrieved successfully",
+    data: result,
+  });
+});
+
 const adminController = {
   toggleUserSuspension,
   deleteUser,
   toggleShopBlackListStatus,
   getTransactionHistory,
   getSystemOverview,
+  getMonthlyTransactionOfCurrentYear,
 };
 
 export default adminController;

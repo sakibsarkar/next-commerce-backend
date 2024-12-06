@@ -31,8 +31,17 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
     const result = await prisma.user.findUnique({
       where: {
         id: decryptedJwt.id,
+        isDeleted: false,
       },
     });
+
+    if (!result) {
+      throw new AppError(401, "Unauthorized");
+    }
+
+    if (result.isSuspended) {
+      throw new AppError(401, "Account is suspended");
+    }
 
     const newAccessToken = authUtils.generateAccessToken({
       id: result?.id || "",
@@ -61,10 +70,15 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
     const isExistUsr = await prisma.user.findUnique({
       where: {
         id: decryptedJwt.id,
+        isDeleted: false,
       },
     });
     if (!isExistUsr) {
       throw new AppError(401, "Unauthorized");
+    }
+
+    if (isExistUsr.isSuspended) {
+      throw new AppError(401, "Account is suspended");
     }
 
     const pay = {
@@ -85,10 +99,15 @@ const isAuthenticateUser = catchAsyncError(async (req, res, next) => {
     const isExistUsr = await prisma.user.findUnique({
       where: {
         id,
+        isDeleted: false,
       },
     });
     if (!isExistUsr) {
       throw new AppError(401, "Unauthorized");
+    }
+
+    if (isExistUsr.isSuspended) {
+      throw new AppError(401, "Account is suspended");
     }
 
     const pay = {
