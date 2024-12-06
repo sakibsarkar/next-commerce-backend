@@ -48,7 +48,13 @@ router.get(
   "/user-list",
   authMiddleWere.isAuthenticateUser,
   authMiddleWere.authorizeRoles("ADMIN"),
-  adminController.getUserAllUserList
+  adminController.getAllUserList
+);
+router.get(
+  "/shop-list",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("ADMIN"),
+  adminController.getAllShopList
 );
 
 const adminRoute = router;

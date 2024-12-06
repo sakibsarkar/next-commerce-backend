@@ -146,7 +146,7 @@ const getMonthlyTransactionOfCurrentYear = async () => {
   return monthlyData;
 };
 
-const getUserAllUserList = async (query: Record<string, unknown>) => {
+const getAllUserList = async (query: Record<string, unknown>) => {
   const queryBuilder = new QueryBuilder(query)
     .paginate()
     .sort()
@@ -165,6 +165,33 @@ const getUserAllUserList = async (query: Record<string, unknown>) => {
 
   return { result, totalCount, metaQuery };
 };
+const getAllShopList = async (query: Record<string, unknown>) => {
+  const queryBuilder = new QueryBuilder(query)
+    .paginate()
+    .sort()
+    .filter()
+    .search(["name"]);
+
+  const defaultQuery: Record<string, unknown> = {};
+  const isBlackListed = query.isBlackListed;
+  if (isBlackListed) {
+    if (isBlackListed == "1") {
+      defaultQuery.isBlackListed = true;
+    } else {
+      defaultQuery.isBlackListed = false;
+    }
+  }
+  delete query.isBlackListed;
+  const queryResult = queryBuilder.getPrismaQuery(defaultQuery);
+  const metaQuery = queryBuilder.getMetaQuery();
+
+  const result = await prisma.shop.findMany(queryResult);
+  const totalCount = await prisma.shop.count({
+    where: queryResult.where || {},
+  });
+
+  return { result, totalCount, metaQuery };
+};
 
 const adminService = {
   toggleUserSuspension,
@@ -173,7 +200,8 @@ const adminService = {
   getTransactionHistory,
   getSystemOverview,
   getMonthlyTransactionOfCurrentYear,
-  getUserAllUserList,
+  getAllUserList,
+  getAllShopList,
 };
 
 export default adminService;

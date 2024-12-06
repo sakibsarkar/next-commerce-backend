@@ -71,14 +71,31 @@ const getMonthlyTransactionOfCurrentYear = catchAsyncError(async (req, res) => {
   });
 });
 
-const getUserAllUserList = catchAsyncError(async (req, res) => {
+const getAllUserList = catchAsyncError(async (req, res) => {
   const { query } = req;
-  const { metaQuery, result, totalCount } =
-    await adminService.getUserAllUserList(query);
+  const { metaQuery, result, totalCount } = await adminService.getAllUserList(
+    query
+  );
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "User list retrieved successfully",
+    data: result,
+    meta: {
+      totalDoc: totalCount,
+      ...metaQuery,
+    },
+  });
+});
+const getAllShopList = catchAsyncError(async (req, res) => {
+  const { query } = req;
+  const { metaQuery, result, totalCount } = await adminService.getAllShopList(
+    query
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Shop list retrieved successfully",
     data: result,
     meta: {
       totalDoc: totalCount,
@@ -94,7 +111,8 @@ const adminController = {
   getTransactionHistory,
   getSystemOverview,
   getMonthlyTransactionOfCurrentYear,
-  getUserAllUserList,
+  getAllUserList,
+  getAllShopList,
 };
 
 export default adminController;
