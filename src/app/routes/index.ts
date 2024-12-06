@@ -1,4 +1,5 @@
 import { Router } from "express";
+import adminRoute from "../modules/admin/admiln.route";
 import authRoute from "../modules/auth/auth.route";
 import categoryRoute from "../modules/category/category.route";
 import mockRoute from "../modules/mock.controller";
@@ -48,6 +49,10 @@ const moduleRoute = [
   {
     path: "/upload",
     route: uploadRoute,
+  },
+  {
+    path: "/admin",
+    route: adminRoute,
   },
   {
     path: "/mock",
