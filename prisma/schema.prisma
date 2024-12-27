@@ -107,8 +107,9 @@ model Product {
   isDeleted    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  Order        Order[]
-  Review       Review[]
+  orders        Order[]
+  reviews       Review[]
+  coupons       Coupon[]
 }
 
 model Color {
@@ -125,6 +126,16 @@ model Size {
   quantity Int    @default(0)
   colorId  String
   color    Color  @relation(fields: [colorId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+  id          String   @id @default(uuid())
+  discount    Int
+  code        String
+  productId   String
+  porductInfo Product  @relation(fields: [productId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum OrderStatus {

@@ -220,6 +220,7 @@ const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* ()
     let findQuery = {
         isDeleted: false,
     };
+    console.log(maxPrice, minPrice, categories);
     if (maxPrice) {
         findQuery = Object.assign(Object.assign({}, findQuery), { price: { lte: maxPrice } });
     }
@@ -264,6 +265,7 @@ const getProductDetailsById = (id) => __awaiter(void 0, void 0, void 0, function
             },
             categoryInfo: true,
             shopInfo: true,
+            coupons: true,
         },
     });
     return product;

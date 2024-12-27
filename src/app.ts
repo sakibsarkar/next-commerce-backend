@@ -25,6 +25,13 @@ app.use("/api/v1", router);
 // 404 Handler
 
 app.get("/", async (_req, res) => {
+  // await prisma.coupon.create({
+  //   data: {
+  //     code: "SALE2024",
+  //     discount: 24,
+  //     productId: "a8f91ddc-416d-4d27-be85-4e12a5cb6082",
+  //   },
+  // });
   res.send({
     success: true,
     statusCode: 200,

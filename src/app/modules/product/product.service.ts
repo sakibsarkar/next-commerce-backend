@@ -241,6 +241,7 @@ const getAllProducts = async (query: Record<string, any>) => {
   let findQuery: Record<string, any> = {
     isDeleted: false,
   };
+  console.log(maxPrice, minPrice, categories);
 
   if (maxPrice) {
     findQuery = { ...findQuery, price: { lte: maxPrice } };
@@ -297,6 +298,7 @@ const getProductDetailsById = async (id: string) => {
       },
       categoryInfo: true,
       shopInfo: true,
+      coupons: true,
     },
   });
   return product;

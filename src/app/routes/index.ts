@@ -2,6 +2,7 @@ import { Router } from "express";
 import adminRoute from "../modules/admin/admin.route";
 import authRoute from "../modules/auth/auth.route";
 import categoryRoute from "../modules/category/category.route";
+import couponRoute from "../modules/coupon/coupon.route";
 import mockRoute from "../modules/mock.controller";
 import orderRoute from "../modules/order/order.route";
 import paymentRoute from "../modules/payment/payment.route";
@@ -53,6 +54,10 @@ const moduleRoute = [
   {
     path: "/admin",
     route: adminRoute,
+  },
+  {
+    path: "/coupon",
+    route: couponRoute,
   },
   {
     path: "/mock",
