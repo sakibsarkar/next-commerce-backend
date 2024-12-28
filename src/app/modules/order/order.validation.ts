@@ -3,6 +3,7 @@ import { z } from "zod";
 const create = z.object({
   paymentIntentId: z.string(),
   shippingAddressId: z.string(),
+  couponCode: z.string().optional(),
   orderItems: z.array(
     z
       .object({

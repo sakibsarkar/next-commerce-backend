@@ -6,10 +6,11 @@ import { IOrderPayload } from "./order.interface";
 import { OrderUtils } from "./order.utils";
 
 const createOrder = async (
-  payload: IOrderPayload[],
+  orderItems: IOrderPayload[],
   userId: string,
   paymentIntentId: string,
-  shippingAddressId: string
+  shippingAddressId: string,
+  couponCode?: string
 ) => {
   if (!paymentIntentId) {
     throw new AppError(400, "Payment method id is required");
@@ -17,16 +18,21 @@ const createOrder = async (
 
   let totalAmount = 0;
   const tnxId = OrderUtils.generateTransactionId();
+  const productPriceHash: Record<string, { discount: number; price: number }> =
+    {}; // { productId: {discout:number, price:number} }
 
   await prisma.$transaction(async (tx) => {
-    for (const item of payload) {
+    for (const item of orderItems) {
       const product = await tx.product.findUnique({
         where: { id: item.productId },
         include: { colors: { include: { sizes: true } } },
       });
 
       if (!product) throw new AppError(404, "Product not found");
-
+      productPriceHash[product.id] = {
+        discount: product.discount,
+        price: product.price,
+      };
       const color = product.colors.find((color) => color.id === item.colorId);
       if (!color) throw new AppError(404, "Color not found");
 
@@ -79,6 +85,32 @@ const createOrder = async (
         amount: Math.round(totalAmount * 100),
       },
     });
+
+    if (couponCode) {
+      const productIds = orderItems.map((item) => item.productId);
+      const coupon = await tx.coupon.findFirst({
+        where: { code: couponCode, productId: { in: productIds } },
+      });
+
+      if (coupon) {
+        const couponAppliedProduct = productPriceHash[coupon.productId];
+        const product = orderItems.find(
+          (item) => item.productId === coupon.productId
+        );
+
+        if (couponAppliedProduct && product) {
+          const productDiscountPrice = OrderUtils.getDiscountPrice(
+            couponAppliedProduct.price,
+            couponAppliedProduct.discount || 0
+          );
+
+          // calculate te discount price for the product with quantity
+          const discountPrice =
+            productDiscountPrice * product.quantity * (coupon.discount / 100);
+          totalAmount -= discountPrice;
+        }
+      }
+    }
 
     if (paymentStatus !== "SUCCESS") {
       throw new AppError(400, "Payment failed");
