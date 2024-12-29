@@ -17,8 +17,8 @@ const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
 const order_service_1 = __importDefault(require("./order.service"));
 const createOrder = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
-    const { paymentIntentId, orderItems, shippingAddressId } = req.body;
-    const transactionId = yield order_service_1.default.createOrder(orderItems, user.id, paymentIntentId, shippingAddressId);
+    const { paymentIntentId, orderItems, shippingAddressId, couponCode } = req.body;
+    const transactionId = yield order_service_1.default.createOrder(orderItems, user.id, paymentIntentId, shippingAddressId, couponCode);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: 201,

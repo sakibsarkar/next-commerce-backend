@@ -13,6 +13,7 @@ router.post("/create", authMiddleWere_1.default.isAuthenticateUser, authMiddleWe
 router.patch("/update", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("VENDOR"), (0, validator_1.validSchema)(shop_validation_1.default.update), shop_controller_1.default.updateShop);
 router.get("/my-shop", authMiddleWere_1.default.isAuthenticateUser, shop_controller_1.default.getShopByUser);
 router.get("/get/:shopId", authMiddleWere_1.default.isAuthenticateUser, shop_controller_1.default.getSopInformationByShopId);
+router.get("/get-all", shop_controller_1.default.getAllShopsController);
 router.patch("/follow-unfollow/:shopId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), shop_controller_1.default.toggleFollowAShop);
 router.post("/is-following", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), shop_controller_1.default.isShopFollowedByUser);
 router.get("/follower-count", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("CUSTOMER"), shop_controller_1.default.getShopFollowerCount);

@@ -291,13 +291,17 @@ const getProductsByIds = (ids) => __awaiter(void 0, void 0, void 0, function* ()
 const getUsersShopProducts = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
     const page = Number(query.page || 1);
     const limit = Number(query.limit || 10);
+    let whereQuery = {};
+    if (query.searchTerm) {
+        whereQuery = Object.assign(Object.assign({}, whereQuery), { name: {
+                contains: query.searchTerm,
+                mode: "insensitive",
+            } });
+    }
     const result = yield prisma_1.default.product.findMany({
-        where: {
-            shopInfo: {
+        where: Object.assign({ shopInfo: {
                 ownerId: userId,
-            },
-            isDeleted: false,
-        },
+            }, isDeleted: false }, whereQuery),
         select: {
             id: true,
             name: true,
@@ -315,12 +319,9 @@ const getUsersShopProducts = (userId, query) => __awaiter(void 0, void 0, void 0
         take: limit,
     });
     const totalCount = yield prisma_1.default.product.count({
-        where: {
-            shopInfo: {
+        where: Object.assign(Object.assign({}, whereQuery), { shopInfo: {
                 ownerId: userId,
-            },
-            isDeleted: false,
-        },
+            }, isDeleted: false }),
     });
     const metaQuery = {
         page,

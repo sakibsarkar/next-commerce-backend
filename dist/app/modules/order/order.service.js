@@ -17,20 +17,25 @@ const prisma_1 = __importDefault(require("../../config/prisma"));
 const stripe_1 = __importDefault(require("../../config/stripe"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const order_utils_1 = require("./order.utils");
-const createOrder = (payload, userId, paymentIntentId, shippingAddressId) => __awaiter(void 0, void 0, void 0, function* () {
+const createOrder = (orderItems, userId, paymentIntentId, shippingAddressId, couponCode) => __awaiter(void 0, void 0, void 0, function* () {
     if (!paymentIntentId) {
         throw new AppError_1.default(400, "Payment method id is required");
     }
     let totalAmount = 0;
     const tnxId = order_utils_1.OrderUtils.generateTransactionId();
+    const productPriceHash = {}; // { productId: {discout:number, price:number} }
     yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-        for (const item of payload) {
+        for (const item of orderItems) {
             const product = yield tx.product.findUnique({
                 where: { id: item.productId },
                 include: { colors: { include: { sizes: true } } },
             });
             if (!product)
                 throw new AppError_1.default(404, "Product not found");
+            productPriceHash[product.id] = {
+                discount: product.discount,
+                price: product.price,
+            };
             const color = product.colors.find((color) => color.id === item.colorId);
             if (!color)
                 throw new AppError_1.default(404, "Color not found");
@@ -72,6 +77,22 @@ const createOrder = (payload, userId, paymentIntentId, shippingAddressId) => __a
                 amount: Math.round(totalAmount * 100),
             },
         });
+        if (couponCode) {
+            const productIds = orderItems.map((item) => item.productId);
+            const coupon = yield tx.coupon.findFirst({
+                where: { code: couponCode, productId: { in: productIds } },
+            });
+            if (coupon) {
+                const couponAppliedProduct = productPriceHash[coupon.productId];
+                const product = orderItems.find((item) => item.productId === coupon.productId);
+                if (couponAppliedProduct && product) {
+                    const productDiscountPrice = order_utils_1.OrderUtils.getDiscountPrice(couponAppliedProduct.price, couponAppliedProduct.discount || 0);
+                    // calculate te discount price for the product with quantity
+                    const discountPrice = productDiscountPrice * product.quantity * (coupon.discount / 100);
+                    totalAmount -= discountPrice;
+                }
+            }
+        }
         if (paymentStatus !== "SUCCESS") {
             throw new AppError_1.default(400, "Payment failed");
         }

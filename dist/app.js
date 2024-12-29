@@ -32,17 +32,10 @@ app.use((0, cookie_parser_1.default)());
 app.use("/api/v1", index_1.default);
 // 404 Handler
 app.get("/", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // await prisma.coupon.create({
-    //   data: {
-    //     code: "SALE2024",
-    //     discount: 24,
-    //     productId: "a8f91ddc-416d-4d27-be85-4e12a5cb6082",
-    //   },
-    // });
     res.send({
         success: true,
         statusCode: 200,
-        data: [],
+        data: null,
         message: "Hello from server",
     });
 }));

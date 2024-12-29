@@ -9,6 +9,7 @@ const auth_route_1 = __importDefault(require("../modules/auth/auth.route"));
 const category_route_1 = __importDefault(require("../modules/category/category.route"));
 const coupon_route_1 = __importDefault(require("../modules/coupon/coupon.route"));
 const mock_controller_1 = __importDefault(require("../modules/mock.controller"));
+const newsLatter_route_1 = __importDefault(require("../modules/newsLatter/newsLatter.route"));
 const order_route_1 = __importDefault(require("../modules/order/order.route"));
 const payment_route_1 = __importDefault(require("../modules/payment/payment.route"));
 const product_route_1 = __importDefault(require("../modules/product/product.route"));
@@ -61,6 +62,10 @@ const moduleRoute = [
     {
         path: "/coupon",
         route: coupon_route_1.default,
+    },
+    {
+        path: "/news-latter",
+        route: newsLatter_route_1.default,
     },
     {
         path: "/mock",

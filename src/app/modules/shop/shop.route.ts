@@ -35,6 +35,8 @@ router.get(
   shopController.getSopInformationByShopId
 );
 
+router.get("/get-all", shopController.getAllShopsController);
+
 router.patch(
   "/follow-unfollow/:shopId",
   authMiddleWere.isAuthenticateUser,

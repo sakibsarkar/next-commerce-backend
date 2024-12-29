@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const prisma_1 = __importDefault(require("../../config/prisma"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const createShop = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -158,6 +159,36 @@ const getSopInformationByShopId = (shopId, userId) => __awaiter(void 0, void 0, 
     return Object.assign(Object.assign({}, shop), { followerCount,
         totalProduct, isFollowing: Boolean(isFollowing) });
 });
+const getAllShops = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const Builder = new QueryBuilder_1.default(query)
+        .search(["name"])
+        .filter()
+        .sort()
+        .paginate();
+    const queryResult = Builder.getPrismaQuery({ isBlackListed: false });
+    const metaQuery = Builder.getMetaQuery();
+    const result = yield prisma_1.default.shop.findMany(Object.assign({}, queryResult));
+    const shops = [];
+    for (const shop of result) {
+        const followerCount = yield prisma_1.default.shopFollower.count({
+            where: {
+                shopId: shop.id,
+            },
+        });
+        const totalProduct = yield prisma_1.default.product.count({
+            where: {
+                shopId: shop.id,
+            },
+        });
+        const data = Object.assign(Object.assign({}, shop), { followerCount,
+            totalProduct });
+        shops.push(data);
+    }
+    const totalCount = yield prisma_1.default.shop.count({
+        where: queryResult.where || {},
+    });
+    return { result: shops, totalCount, metaQuery };
+});
 const shopService = {
     createShop,
     getShopByUser,
@@ -166,5 +197,6 @@ const shopService = {
     isShopFollowedByUser,
     getShopFollowerCount,
     getSopInformationByShopId,
+    getAllShops,
 };
 exports.default = shopService;

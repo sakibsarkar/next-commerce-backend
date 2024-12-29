@@ -4,6 +4,7 @@ const zod_1 = require("zod");
 const create = zod_1.z.object({
     paymentIntentId: zod_1.z.string(),
     shippingAddressId: zod_1.z.string(),
+    couponCode: zod_1.z.string().optional(),
     orderItems: zod_1.z.array(zod_1.z
         .object({
         productId: zod_1.z.string(),

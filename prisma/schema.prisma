@@ -68,6 +68,7 @@ model Shop {
   Order          Order[]
   Payment        Payment[]
   ReviewResponse ReviewResponse[]
+  Coupon         Coupon[]
 }
 
 model ShopFollower {
@@ -107,9 +108,9 @@ model Product {
   isDeleted    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  orders        Order[]
-  reviews       Review[]
-  coupons       Coupon[]
+  orders       Order[]
+  reviews      Review[]
+  coupons      Coupon[]
 }
 
 model Color {
@@ -133,7 +134,9 @@ model Coupon {
   discount    Int
   code        String
   productId   String
-  porductInfo Product  @relation(fields: [productId], references: [id])
+  productInfo Product  @relation(fields: [productId], references: [id])
+  shopId      String
+  shopInfo    Shop     @relation(fields: [shopId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -209,4 +212,11 @@ model Payment {
   updatedAt     DateTime      @updatedAt
   Shop          Shop?         @relation(fields: [shopId], references: [id])
   shopId        String?
+}
+
+model NewsLatter {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

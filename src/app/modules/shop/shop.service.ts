@@ -1,3 +1,4 @@
+import QueryBuilder from "../../builder/QueryBuilder";
 import prisma from "../../config/prisma";
 import AppError from "../../errors/AppError";
 import { IShop } from "./shop.interface";
@@ -184,6 +185,48 @@ const getSopInformationByShopId = async (shopId: string, userId: string) => {
   };
 };
 
+const getAllShops = async (query: Record<string, unknown>) => {
+  const Builder = new QueryBuilder(query)
+    .search(["name"])
+    .filter()
+    .sort()
+    .paginate();
+
+  const queryResult = Builder.getPrismaQuery({ isBlackListed: false });
+  const metaQuery = Builder.getMetaQuery();
+
+  const result = await prisma.shop.findMany({
+    ...queryResult,
+  });
+
+  const shops: Record<string, unknown>[] = [];
+
+  for (const shop of result) {
+    const followerCount = await prisma.shopFollower.count({
+      where: {
+        shopId: shop.id,
+      },
+    });
+    const totalProduct = await prisma.product.count({
+      where: {
+        shopId: shop.id,
+      },
+    });
+    const data = {
+      ...shop,
+      followerCount,
+      totalProduct,
+    };
+    shops.push(data);
+  }
+
+  const totalCount = await prisma.shop.count({
+    where: queryResult.where || {},
+  });
+
+  return { result: shops, totalCount, metaQuery };
+};
+
 const shopService = {
   createShop,
   getShopByUser,
@@ -192,5 +235,6 @@ const shopService = {
   isShopFollowedByUser,
   getShopFollowerCount,
   getSopInformationByShopId,
+  getAllShops,
 };
 export default shopService;

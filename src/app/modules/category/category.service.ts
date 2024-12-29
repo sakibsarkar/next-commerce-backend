@@ -42,5 +42,31 @@ const updateCategory = async (data: { label: string }, categoryId: string) => {
   return result;
 };
 
-const categoryService = { getAllCategories, createCategory, updateCategory };
+const getFirstTenCategories = async () => {
+  const result = await prisma.category.findMany({
+    take: 10,
+  });
+  const category: Record<string, unknown>[] = [];
+
+  for (const categoryItem of result) {
+    const totalProduct = await prisma.product.count({
+      where: { categoryId: categoryItem.id },
+      orderBy: { createdAt: "desc" },
+    });
+    const data = {
+      ...categoryItem,
+      totalProduct,
+    };
+    category.push(data);
+  }
+
+  return category;
+};
+
+const categoryService = {
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  getFirstTenCategories,
+};
 export default categoryService;

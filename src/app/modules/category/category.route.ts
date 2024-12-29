@@ -17,6 +17,7 @@ router.patch(
 );
 
 router.get("/get", categoryController.getAllCategories);
+router.get("/get-ten/", categoryController.getFirstTenCategories);
 
 const categoryRoute = router;
 export default categoryRoute;

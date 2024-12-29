@@ -50,5 +50,19 @@ const updateCategory = (0, catchAsyncError_1.default)((req, res) => __awaiter(vo
         data: result,
     });
 }));
-const categoryController = { createCategory, getAllCategories, updateCategory };
+const getFirstTenCategories = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield category_service_1.default.getFirstTenCategories();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Category fetched successfully",
+        data: result,
+    });
+}));
+const categoryController = {
+    createCategory,
+    getAllCategories,
+    updateCategory,
+    getFirstTenCategories,
+};
 exports.default = categoryController;

@@ -87,6 +87,20 @@ const getSopInformationByShopId = catchAsyncError(async (req, res) => {
   });
 });
 
+const getAllShopsController = catchAsyncError(async (req, res) => {
+  const { query } = req;
+  const { metaQuery, result, totalCount } = await shopService.getAllShops(
+    query
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Shops retrieved successfully",
+    data: result,
+    meta: Object.assign({ totalDoc: totalCount }, metaQuery),
+  });
+});
+
 const shopController = {
   createShop,
   getShopByUser,
@@ -95,6 +109,7 @@ const shopController = {
   isShopFollowedByUser,
   getShopFollowerCount,
   getSopInformationByShopId,
+  getAllShopsController,
 };
 
 export default shopController;

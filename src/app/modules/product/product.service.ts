@@ -329,12 +329,23 @@ const getUsersShopProducts = async (
 ) => {
   const page = Number(query.page || 1);
   const limit = Number(query.limit || 10);
+  let whereQuery: Record<string, any> = {};
+  if (query.searchTerm) {
+    whereQuery = {
+      ...whereQuery,
+      name: {
+        contains: query.searchTerm,
+        mode: "insensitive",
+      },
+    };
+  }
   const result = await prisma.product.findMany({
     where: {
       shopInfo: {
         ownerId: userId,
       },
       isDeleted: false,
+      ...whereQuery,
     },
     select: {
       id: true,
@@ -356,6 +367,7 @@ const getUsersShopProducts = async (
 
   const totalCount = await prisma.product.count({
     where: {
+      ...whereQuery,
       shopInfo: {
         ownerId: userId,
       },

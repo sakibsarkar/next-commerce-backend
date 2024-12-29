@@ -49,5 +49,25 @@ const updateCategory = (data, categoryId) => __awaiter(void 0, void 0, void 0, f
     });
     return result;
 });
-const categoryService = { getAllCategories, createCategory, updateCategory };
+const getFirstTenCategories = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.category.findMany({
+        take: 10,
+    });
+    const category = [];
+    for (const categoryItem of result) {
+        const totalProduct = yield prisma_1.default.product.count({
+            where: { categoryId: categoryItem.id },
+            orderBy: { createdAt: "desc" },
+        });
+        const data = Object.assign(Object.assign({}, categoryItem), { totalProduct });
+        category.push(data);
+    }
+    return category;
+});
+const categoryService = {
+    getAllCategories,
+    createCategory,
+    updateCategory,
+    getFirstTenCategories,
+};
 exports.default = categoryService;

@@ -4,6 +4,7 @@ import authRoute from "../modules/auth/auth.route";
 import categoryRoute from "../modules/category/category.route";
 import couponRoute from "../modules/coupon/coupon.route";
 import mockRoute from "../modules/mock.controller";
+import newsLatterRoute from "../modules/newsLatter/newsLatter.route";
 import orderRoute from "../modules/order/order.route";
 import paymentRoute from "../modules/payment/payment.route";
 import productRoute from "../modules/product/product.route";
@@ -58,6 +59,10 @@ const moduleRoute = [
   {
     path: "/coupon",
     route: couponRoute,
+  },
+  {
+    path: "/news-latter",
+    route: newsLatterRoute,
   },
   {
     path: "/mock",
