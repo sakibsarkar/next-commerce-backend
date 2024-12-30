@@ -36,6 +36,12 @@ router.get(
   authMiddleWere.authorizeRoles("ADMIN"),
   adminController.getSystemOverview
 );
+router.get(
+  "/vendor-user-chart-data",
+  authMiddleWere.isAuthenticateUser,
+  authMiddleWere.authorizeRoles("ADMIN"),
+  adminController.getVendorAndUserData
+);
 
 router.get(
   "/transaction-data",

@@ -12,6 +12,7 @@ router.delete("/delete-user/:userId", authMiddleWere_1.default.isAuthenticateUse
 router.patch("/toggle-shop-blacklist/:shopId", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.toggleShopBlackListStatus);
 router.get("/transactions", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.getTransactionHistory);
 router.get("/system-overview", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.getSystemOverview);
+router.get("/vendor-user-chart-data", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.getVendorAndUserData);
 router.get("/transaction-data", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.getMonthlyTransactionOfCurrentYear);
 router.get("/user-list", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.getAllUserList);
 router.get("/shop-list", authMiddleWere_1.default.isAuthenticateUser, authMiddleWere_1.default.authorizeRoles("ADMIN"), admin_controller_1.default.getAllShopList);

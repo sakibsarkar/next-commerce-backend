@@ -65,6 +65,15 @@ const getSystemOverview = (0, catchAsyncError_1.default)((req, res) => __awaiter
         data: result,
     });
 }));
+const getVendorAndUserData = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield admin_service_1.default.getVendorAndUserData();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Vendor and user data retrieved successfully",
+        data: result,
+    });
+}));
 const getMonthlyTransactionOfCurrentYear = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield admin_service_1.default.getMonthlyTransactionOfCurrentYear();
     (0, sendResponse_1.default)(res, {
@@ -105,5 +114,6 @@ const adminController = {
     getMonthlyTransactionOfCurrentYear,
     getAllUserList,
     getAllShopList,
+    getVendorAndUserData,
 };
 exports.default = adminController;

@@ -61,6 +61,16 @@ const getSystemOverview = catchAsyncError(async (req, res) => {
   });
 });
 
+const getVendorAndUserData = catchAsyncError(async (req, res) => {
+  const result = await adminService.getVendorAndUserData();
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Vendor and user data retrieved successfully",
+    data: result,
+  });
+});
+
 const getMonthlyTransactionOfCurrentYear = catchAsyncError(async (req, res) => {
   const result = await adminService.getMonthlyTransactionOfCurrentYear();
   sendResponse(res, {
@@ -113,6 +123,7 @@ const adminController = {
   getMonthlyTransactionOfCurrentYear,
   getAllUserList,
   getAllShopList,
+  getVendorAndUserData,
 };
 
 export default adminController;
