@@ -34,6 +34,27 @@ const toggleUserSuspension = (userId) => __awaiter(void 0, void 0, void 0, funct
     });
     return result;
 });
+const getVendorAndUserData = () => __awaiter(void 0, void 0, void 0, function* () {
+    const userCounts = yield prisma_1.default.user.groupBy({
+        by: ["role"],
+        where: {
+            role: {
+                in: ["VENDOR", "CUSTOMER"],
+            },
+        },
+        _count: {
+            role: true,
+        },
+    });
+    // Calculate the total number of users
+    const totalUsers = userCounts.reduce((sum, user) => sum + user._count.role, 0);
+    // Map to percentage data
+    const pieChartData = userCounts.map((user) => ({
+        role: user.role,
+        percentage: ((user._count.role / totalUsers) * 100).toFixed(2), // Convert to percentage
+    }));
+    return pieChartData;
+});
 const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield prisma_1.default.user.findUnique({
         where: {
@@ -186,6 +207,7 @@ const adminService = {
     getTransactionHistory,
     getSystemOverview,
     getMonthlyTransactionOfCurrentYear,
+    getVendorAndUserData,
     getAllUserList,
     getAllShopList,
 };
