@@ -1,3 +1,5 @@
+import { v4 } from "uuid";
+import { ISheetData } from "../../../utils/googleSheet.utils";
 import QueryBuilder from "../../builder/QueryBuilder";
 import prisma from "../../config/prisma";
 import stripe from "../../config/stripe";
@@ -20,6 +22,8 @@ const createOrder = async (
   const tnxId = OrderUtils.generateTransactionId();
   const productPriceHash: Record<string, { discount: number; price: number }> =
     {}; // { productId: {discout:number, price:number} }
+
+  const sheetData: ISheetData[] = [];
 
   await prisma.$transaction(async (tx) => {
     for (const item of orderItems) {
@@ -50,8 +54,10 @@ const createOrder = async (
         ? OrderUtils.getDiscountPrice(product.price, product.discount)
         : product.price;
 
+      const orderId = v4();
       await tx.order.create({
         data: {
+          id: orderId,
           userId,
           shopId: product.shopId,
           productId: product.id,
@@ -61,6 +67,14 @@ const createOrder = async (
           quantity: item.quantity,
           total: Math.round(grandPrice),
         },
+      });
+
+      sheetData.push({
+        tnxId,
+        orderId,
+        userId,
+        amount: Math.round(grandPrice * item.quantity),
+        date: new Date().toISOString(),
       });
 
       await tx.size.update({
@@ -125,7 +139,7 @@ const createOrder = async (
     }
   });
 
-  return tnxId;
+  return sheetData;
 };
 
 const getUserOrders = async (

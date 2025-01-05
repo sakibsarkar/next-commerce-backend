@@ -1,12 +1,14 @@
 import catchAsyncError from "../../../utils/catchAsyncError";
+import { appendDataInSheet } from "../../../utils/googleSheet.utils";
 import sendResponse from "../../../utils/sendResponse";
 import orderService from "./order.service";
 
 const createOrder = catchAsyncError(async (req, res) => {
   const user = req.user!;
-  const { paymentIntentId, orderItems, shippingAddressId,couponCode } = req.body;
+  const { paymentIntentId, orderItems, shippingAddressId, couponCode } =
+    req.body;
 
-  const transactionId = await orderService.createOrder(
+  const sheetData = await orderService.createOrder(
     orderItems,
     user.id,
     paymentIntentId!,
@@ -19,9 +21,17 @@ const createOrder = catchAsyncError(async (req, res) => {
     statusCode: 201,
     message: "Order created successfully",
     data: {
-      transactionId,
+      transactionId: sheetData[0]?.tnxId || "",
     },
   });
+
+  try {
+    for (const data of sheetData) {
+      await appendDataInSheet(data);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 const getUserOrders = catchAsyncError(async (req, res) => {

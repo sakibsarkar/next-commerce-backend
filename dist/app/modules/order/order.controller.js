@@ -13,20 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const catchAsyncError_1 = __importDefault(require("../../../utils/catchAsyncError"));
+const googleSheet_utils_1 = require("../../../utils/googleSheet.utils");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
 const order_service_1 = __importDefault(require("./order.service"));
 const createOrder = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const user = req.user;
     const { paymentIntentId, orderItems, shippingAddressId, couponCode } = req.body;
-    const transactionId = yield order_service_1.default.createOrder(orderItems, user.id, paymentIntentId, shippingAddressId, couponCode);
+    const sheetData = yield order_service_1.default.createOrder(orderItems, user.id, paymentIntentId, shippingAddressId, couponCode);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: 201,
         message: "Order created successfully",
         data: {
-            transactionId,
+            transactionId: ((_a = sheetData[0]) === null || _a === void 0 ? void 0 : _a.tnxId) || "",
         },
     });
+    try {
+        for (const data of sheetData) {
+            yield (0, googleSheet_utils_1.appendDataInSheet)(data);
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
 }));
 const getUserOrders = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;

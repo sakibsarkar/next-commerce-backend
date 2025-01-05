@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const prisma_1 = __importDefault(require("../../config/prisma"));
 const stripe_1 = __importDefault(require("../../config/stripe"));
@@ -24,6 +25,7 @@ const createOrder = (orderItems, userId, paymentIntentId, shippingAddressId, cou
     let totalAmount = 0;
     const tnxId = order_utils_1.OrderUtils.generateTransactionId();
     const productPriceHash = {}; // { productId: {discout:number, price:number} }
+    const sheetData = [];
     yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
         for (const item of orderItems) {
             const product = yield tx.product.findUnique({
@@ -48,8 +50,10 @@ const createOrder = (orderItems, userId, paymentIntentId, shippingAddressId, cou
             const grandPrice = product.discount
                 ? order_utils_1.OrderUtils.getDiscountPrice(product.price, product.discount)
                 : product.price;
+            const orderId = (0, uuid_1.v4)();
             yield tx.order.create({
                 data: {
+                    id: orderId,
                     userId,
                     shopId: product.shopId,
                     productId: product.id,
@@ -59,6 +63,13 @@ const createOrder = (orderItems, userId, paymentIntentId, shippingAddressId, cou
                     quantity: item.quantity,
                     total: Math.round(grandPrice),
                 },
+            });
+            sheetData.push({
+                tnxId,
+                orderId,
+                userId,
+                amount: Math.round(grandPrice * item.quantity),
+                date: new Date().toISOString(),
             });
             yield tx.size.update({
                 where: { id: size.id },
@@ -101,7 +112,7 @@ const createOrder = (orderItems, userId, paymentIntentId, shippingAddressId, cou
             throw new AppError_1.default(400, `Payment amount does not match total amount totalAmount:${totalAmount} paymentAmount:${paymentAmount}`);
         }
     }));
-    return tnxId;
+    return sheetData;
 });
 const getUserOrders = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
     const queryBuilder = new QueryBuilder_1.default(query).paginate().sort();
